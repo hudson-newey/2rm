@@ -2,12 +2,12 @@ package patches
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"hudson-newey/2rm/src/commands"
 	"hudson-newey/2rm/src/util"
 )
 
@@ -17,9 +17,7 @@ func RmPatch(arguments []string) {
 	actionedArgs := removeDangerousArguments(arguments)
 
 	filePaths := extractFilePaths(actionedArgs)
-
-	// TODO: this should probably allow hard deletion of /tmp files
-	createBackups(filePaths)
+	extractedArguments := extractArguments(actionedArgs)
 
 	// a debug statement is useful for scripts, it provides explicit feedback
 	// and prints exactly what files were backed up / moved to the trash can
@@ -27,8 +25,17 @@ func RmPatch(arguments []string) {
 	debugStatement := strings.Join(filePaths, " ")
 	fmt.Println(debugStatement)
 
-	// command := "rm " + strings.Join(actionedArgs, " ")
-	// commands.Execute(command)
+	for _, path := range filePaths {
+		absolutePath := relativeToAbsolute(path)
+		isTmp := isTmpPath(absolutePath)
+
+		// TODO: this should probably support batch deletions
+		if isTmp {
+			hardDelete([]string{path}, extractedArguments)
+		} else {
+			softDelete([]string{path}, extractedArguments)
+		}
+	}
 }
 
 func removeDangerousArguments(arguments []string) []string {
@@ -48,16 +55,32 @@ func removeDangerousArguments(arguments []string) []string {
 	return returnedArguments
 }
 
-func extractFilePaths(args []string) []string {
+func extractFilePaths(input []string) []string {
 	filePaths := []string{}
 
-	for _, str := range args {
+	for _, str := range input {
 		if !strings.HasPrefix(str, "-") {
 			filePaths = append(filePaths, str)
 		}
 	}
 
 	return filePaths
+}
+
+func extractArguments(input []string) []string {
+	arguments := []string{}
+
+	for _, str := range input {
+		if strings.HasPrefix(str, "-") {
+			arguments = append(arguments, str)
+		}
+	}
+
+	return arguments
+}
+
+func isTmpPath(absolutePath string) bool {
+	return strings.HasPrefix(absolutePath, "/tmp")
 }
 
 func relativeToAbsolute(path string) string {
@@ -76,7 +99,7 @@ func backupFileName(path string) string {
 	return result + ".bak"
 }
 
-func createBackups(filePaths []string) {
+func softDelete(filePaths []string, arguments []string) {
 	tempDir := "/tmp/2rm/"
 	deletedTimestamp := time.Now().Format(time.RFC3339)
 	backupDirectory := tempDir + deletedTimestamp
@@ -98,40 +121,20 @@ func createBackups(filePaths []string) {
 		}
 	}
 
+	commandArguments := strings.Join(arguments, " ")
+
 	for _, path := range filePaths {
 		absoluteSrcPath := relativeToAbsolute(path)
 
 		backupFileName := backupFileName(path)
 		backupLocation := backupDirectory + "/" + backupFileName
 
-		sourceFile, err := os.Open(absoluteSrcPath)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(2)
-		}
-		defer sourceFile.Close()
-
-		destFile, err := os.Create(backupLocation)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(2)
-		}
-		defer destFile.Close()
-
-		_, err = io.Copy(sourceFile, destFile)
-		if err != nil {
-			fmt.Println(err)
-			fmt.Println()
-			fmt.Println("Failed to copy file for", path)
-			fmt.Println("Continue? (y/n)")
-
-			var response string
-			fmt.Scanln(&response)
-
-			if response != "y" && response != "yes" {
-				fmt.Println("Exiting without removing file(s).")
-				os.Exit(2)
-			}
-		}
+		moveCommand := "mv " + commandArguments + " " + absoluteSrcPath + " " + backupLocation
+		commands.Execute(moveCommand)
 	}
+}
+
+func hardDelete(filePaths []string, arguments []string) {
+	command := "rm " + strings.Join(arguments, " ") + " " + strings.Join(filePaths, " ")
+	commands.Execute(command)
 }
