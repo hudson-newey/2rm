@@ -14,7 +14,9 @@ import (
 const TRASH_DIR_PERMISSIONS = 0755
 
 func RmPatch(arguments []string) {
-	actionedArgs := removeDangerousArguments(arguments)
+	actionedArgs := removeUnNeededArguments(
+		removeDangerousArguments(arguments),
+	)
 
 	filePaths := extractFilePaths(actionedArgs)
 	extractedArguments := extractArguments(actionedArgs)
@@ -36,6 +38,19 @@ func RmPatch(arguments []string) {
 			softDelete([]string{path}, extractedArguments)
 		}
 	}
+}
+
+func removeUnNeededArguments(arguments []string) []string {
+	unNeededArguments := []string{"-r"}
+	returnedArguments := []string{}
+
+	for _, arg := range arguments {
+		if !util.InArray(unNeededArguments, arg) {
+			returnedArguments = append(returnedArguments, arg)
+		}
+	}
+
+	return returnedArguments
 }
 
 func removeDangerousArguments(arguments []string) []string {
