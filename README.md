@@ -37,7 +37,7 @@ By using the `/tmp` directory, the operating system will **automatically hard de
 Sometimes you want to hard delete a file/directory every time that you run the `rm` command e.g. you probably want your `node_modules` hard deleted every time and never want to soft delete them.
 In this case, you can modify your `~/.local/share/2rm/config.yml` file to always hard delete `node_modules`.
 
-### Config-based deletion (not implemented)
+### Config-based deletion
 
 You can specify what directories are soft-deleted anb hard-deleted by using the `~/.local/share/2rm/config.yml` file.
 
