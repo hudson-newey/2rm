@@ -16,7 +16,7 @@ func ParseConfig(path string) models.Config {
 		log.Fatal(err)
 	}
 
-	err = yaml.Unmarshal([]byte(content), &parsedConfig)
+	err = yaml.Unmarshal(content, &parsedConfig)
 	if err != nil {
 		log.Fatal(err)
 	}

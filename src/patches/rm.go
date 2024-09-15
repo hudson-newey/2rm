@@ -8,13 +8,14 @@ import (
 	"time"
 
 	"hudson-newey/2rm/src/commands"
+	"hudson-newey/2rm/src/models"
 	"hudson-newey/2rm/src/util"
 )
 
 const TRASH_DIR_PERMISSIONS = 0755
 const HARD_DELETE_CLA = "--hard"
 
-func RmPatch(arguments []string) {
+func RmPatch(arguments []string, config models.Config) {
 	forceHardDelete := util.InArray(arguments, HARD_DELETE_CLA)
 
 	actionedArgs := removeUnNeededArguments(
@@ -34,7 +35,9 @@ func RmPatch(arguments []string) {
 		absolutePath := relativeToAbsolute(path)
 		isTmp := isTmpPath(absolutePath)
 
-		if isTmp || forceHardDelete {
+		isConfigHardDelete := config.ShouldHardDelete(absolutePath)
+
+		if isTmp || forceHardDelete || isConfigHardDelete {
 			hardDelete([]string{path}, extractedArguments)
 		} else {
 			softDelete([]string{path}, extractedArguments)

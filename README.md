@@ -42,7 +42,7 @@ In this case, you can modify your `~/.local/share/2rm/config.yml` file to always
 You can specify what directories are soft-deleted anb hard-deleted by using the `~/.local/share/2rm/config.yml` file.
 
 ```yml
-hard-delete:
+hard:
     - node_modules/
     - target/
 ```

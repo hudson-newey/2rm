@@ -1,14 +1,34 @@
 package models
 
-import "hudson-newey/2rm/src/util"
+import (
+	"strings"
+)
 
 type Config struct {
-	HardDeletePaths []string
-	SoftDeletePaths []string
+	Hard []string
 }
 
 func (config Config) ShouldHardDelete(path string) bool {
-	isInHardDelete := util.InArray(config.HardDeletePaths, path)
-	isInSoftDelete := util.InArray(config.SoftDeletePaths, path)
-	return isInHardDelete || isInSoftDelete
+	for _, hardDeletePath := range config.Hard {
+		// if the config hard delte path is an absolute path, we only want to
+		// hard delete the path if the full path matches
+		isAbsolutePath := strings.HasPrefix(hardDeletePath, "/")
+		if isAbsolutePath && path == hardDeletePath {
+			return true
+		}
+
+		lastConfigPathLocation := lastPathLocation(hardDeletePath)
+		lastPathLocation := lastPathLocation(path)
+		if lastConfigPathLocation == lastPathLocation {
+			return true
+		}
+	}
+
+	return false
+}
+
+func lastPathLocation(path string) string {
+	splitPath := strings.Split(path, "/")
+	lastDirectory := splitPath[len(splitPath)-1]
+	return lastDirectory
 }
