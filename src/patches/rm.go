@@ -12,8 +12,11 @@ import (
 )
 
 const TRASH_DIR_PERMISSIONS = 0755
+const HARD_DELETE_CLA = "--hard"
 
 func RmPatch(arguments []string) {
+	forceHardDelete := util.InArray(arguments, HARD_DELETE_CLA)
+
 	actionedArgs := removeUnNeededArguments(
 		removeDangerousArguments(arguments),
 	)
@@ -31,8 +34,7 @@ func RmPatch(arguments []string) {
 		absolutePath := relativeToAbsolute(path)
 		isTmp := isTmpPath(absolutePath)
 
-		// TODO: this should probably support batch deletions
-		if isTmp {
+		if isTmp || forceHardDelete {
 			hardDelete([]string{path}, extractedArguments)
 		} else {
 			softDelete([]string{path}, extractedArguments)
@@ -41,7 +43,7 @@ func RmPatch(arguments []string) {
 }
 
 func removeUnNeededArguments(arguments []string) []string {
-	unNeededArguments := []string{"-r"}
+	unNeededArguments := []string{"-r", HARD_DELETE_CLA}
 	returnedArguments := []string{}
 
 	for _, arg := range arguments {
@@ -150,6 +152,6 @@ func softDelete(filePaths []string, arguments []string) {
 }
 
 func hardDelete(filePaths []string, arguments []string) {
-	command := "rm " + strings.Join(arguments, " ") + " " + strings.Join(filePaths, " ")
+	command := "rm -r " + strings.Join(arguments, " ") + " " + strings.Join(filePaths, " ")
 	commands.Execute(command)
 }

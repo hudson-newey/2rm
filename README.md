@@ -4,6 +4,10 @@
 
 Wraps the rm command with a more secure, safer, and more private version
 
+## Command line arguments
+
+- `--hard` Do not soft-delete file
+
 ## Features
 
 ### Removes the ability to remove your root directory
