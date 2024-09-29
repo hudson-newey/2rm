@@ -16,6 +16,7 @@ I have done this so that you can't accidently add a space and remove your root d
 
 ```sh
 $ rm -rf ./directory /
+>
 ```
 
 (yes I know that you have to use `--no-preserve-root` and I have removed that too)
@@ -45,4 +46,12 @@ You can specify what directories are soft-deleted anb hard-deleted by using the 
 hard:
     - node_modules/
     - target/
+    - .angular/
+    - .next/
+
+# always soft delete backup files, 
+# regardless of it they are configured
+# for a hard delete
+soft:
+    - *.bak
 ```

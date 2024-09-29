@@ -36,8 +36,9 @@ func RmPatch(arguments []string, config models.Config) {
 		isTmp := isTmpPath(absolutePath)
 
 		isConfigHardDelete := config.ShouldHardDelete(absolutePath)
+		isConfigSoftDelete := config.ShouldSoftDelete(absolutePath)
 
-		if isTmp || forceHardDelete || isConfigHardDelete {
+		if isTmp || forceHardDelete || isConfigHardDelete && !isConfigSoftDelete {
 			hardDelete([]string{path}, extractedArguments)
 		} else {
 			softDelete([]string{path}, extractedArguments)
