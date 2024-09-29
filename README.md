@@ -8,6 +8,7 @@ Wraps the rm command with a more secure, safer, and more private version
 
 - `--hard` Do not soft-delete file
 - `--soft` Soft delete a file. A backup will be stored in `/tmp/2rm`
+- `--silent` Do not print out additional information priduced by 2rm. This is useful for scripting situations.
 
 ## Features
 

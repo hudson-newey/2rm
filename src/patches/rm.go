@@ -15,10 +15,12 @@ import (
 const TRASH_DIR_PERMISSIONS = 0755
 const HARD_DELETE_CLA = "--hard"
 const SOFT_DELETE_CLA = "--soft"
+const SILENT_CLA = "--silent"
 
 func RmPatch(arguments []string, config models.Config) {
 	forceHardDelete := util.InArray(arguments, HARD_DELETE_CLA)
 	forceSoftDelete := util.InArray(arguments, SOFT_DELETE_CLA)
+	silent := util.InArray(arguments, SILENT_CLA)
 
 	actionedArgs := removeUnNeededArguments(
 		removeDangerousArguments(arguments),
@@ -31,7 +33,9 @@ func RmPatch(arguments []string, config models.Config) {
 	// and prints exactly what files were backed up / moved to the trash can
 	// after deletion
 	debugStatement := strings.Join(filePaths, " ")
-	fmt.Println(debugStatement)
+	if !silent {
+		fmt.Println(debugStatement)
+	}
 
 	for _, path := range filePaths {
 		absolutePath := relativeToAbsolute(path)
