@@ -1,8 +1,6 @@
 package models
 
-import (
-	"strings"
-)
+import "path/filepath"
 
 type Config struct {
 	Hard []string
@@ -10,25 +8,11 @@ type Config struct {
 
 func (config Config) ShouldHardDelete(path string) bool {
 	for _, hardDeletePath := range config.Hard {
-		// if the config hard delte path is an absolute path, we only want to
-		// hard delete the path if the full path matches
-		isAbsolutePath := strings.HasPrefix(hardDeletePath, "/")
-		if isAbsolutePath && path == hardDeletePath {
-			return true
-		}
-
-		lastConfigPathLocation := lastPathLocation(hardDeletePath)
-		lastPathLocation := lastPathLocation(path)
-		if lastConfigPathLocation == lastPathLocation {
+		matched, _ := filepath.Match(hardDeletePath, path)
+		if matched {
 			return true
 		}
 	}
 
 	return false
-}
-
-func lastPathLocation(path string) string {
-	splitPath := strings.Split(path, "/")
-	lastDirectory := splitPath[len(splitPath)-1]
-	return lastDirectory
 }
