@@ -8,6 +8,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
+      packages: write
       contents: write
 
     steps:
@@ -36,7 +37,15 @@ jobs:
               sha: context.sha
             })
 
-      - name: Publish to GitHub Releases
+      - name: Create Release
+        uses: elgohr/Github-Release-Action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          title: ${{ steps.date.outputs.date }}
+          tag: ${{ steps.date.outputs.date }}
+
+      - name: Publish Assets to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ steps.date.outputs.date }} ./build/2rm
