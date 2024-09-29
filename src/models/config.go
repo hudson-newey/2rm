@@ -3,8 +3,9 @@ package models
 import "path/filepath"
 
 type Config struct {
-	Hard []string
-	Soft []string
+	Backups string
+	Hard    []string
+	Soft    []string
 }
 
 func (config Config) ShouldHardDelete(path string) bool {
@@ -27,6 +28,18 @@ func (config Config) ShouldSoftDelete(path string) bool {
 	}
 
 	return false
+}
+
+// if the user has not specified a backup directory, we will use a default
+// directory of /tmp/2rm
+// I have chosen this directory because it will be automatically cleaned up
+// by the system after a reboot
+func (config Config) SoftDeleteDir() string {
+	if config.Backups != "" {
+		return config.Backups
+	}
+
+	return "/tmp/2rm/"
 }
 
 func matchesPattern(pattern string, path string) bool {

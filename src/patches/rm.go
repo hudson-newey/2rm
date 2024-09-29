@@ -47,13 +47,16 @@ func RmPatch(arguments []string, config models.Config) {
 		if isTmp || forceHardDelete || isConfigHardDelete && !isConfigSoftDelete && !forceSoftDelete {
 			hardDelete([]string{path}, extractedArguments)
 		} else {
-			softDelete([]string{path}, extractedArguments)
+			// this function will return the default soft delete directory
+			// if the user has not specified one in their config file
+			softDeleteDir := config.SoftDeleteDir()
+			softDelete([]string{path}, extractedArguments, softDeleteDir)
 		}
 	}
 }
 
 func removeUnNeededArguments(arguments []string) []string {
-	unNeededArguments := []string{"-r", HARD_DELETE_CLA}
+	unNeededArguments := []string{"-r", HARD_DELETE_CLA, SOFT_DELETE_CLA, SILENT_CLA}
 	returnedArguments := []string{}
 
 	for _, arg := range arguments {
@@ -126,8 +129,10 @@ func backupFileName(path string) string {
 	return result + ".bak"
 }
 
-func softDelete(filePaths []string, arguments []string) {
-	tempDir := "/tmp/2rm/"
+// by default, we want to delete files to /tmp/2rm
+// however, if the user has specified a different directory in their config file
+// we use that instead
+func softDelete(filePaths []string, arguments []string, tempDir string) {
 	deletedTimestamp := time.Now().Format(time.RFC3339)
 	backupDirectory := tempDir + deletedTimestamp
 
