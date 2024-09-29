@@ -7,6 +7,7 @@ Wraps the rm command with a more secure, safer, and more private version
 ## Command line arguments
 
 - `--hard` Do not soft-delete file
+- `--soft` Soft delete a file. A backup will be stored in `/tmp/2rm`
 
 ## Features
 
@@ -43,12 +44,14 @@ In this case, you can modify your `~/.local/share/2rm/config.yml` file to always
 You can specify what directories are soft-deleted anb hard-deleted by using the `~/.local/share/2rm/config.yml` file.
 
 ```yml
+# defaults to /tmp/2rm if not specified
+# in the config file
+backup-location: /tmp/2rm
 hard:
     - node_modules/
     - target/
     - .angular/
     - .next/
-
 # always soft delete backup files, 
 # regardless of it they are configured
 # for a hard delete

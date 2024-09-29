@@ -14,9 +14,11 @@ import (
 
 const TRASH_DIR_PERMISSIONS = 0755
 const HARD_DELETE_CLA = "--hard"
+const SOFT_DELETE_CLA = "--soft"
 
 func RmPatch(arguments []string, config models.Config) {
 	forceHardDelete := util.InArray(arguments, HARD_DELETE_CLA)
+	forceSoftDelete := util.InArray(arguments, SOFT_DELETE_CLA)
 
 	actionedArgs := removeUnNeededArguments(
 		removeDangerousArguments(arguments),
@@ -38,7 +40,7 @@ func RmPatch(arguments []string, config models.Config) {
 		isConfigHardDelete := config.ShouldHardDelete(absolutePath)
 		isConfigSoftDelete := config.ShouldSoftDelete(absolutePath)
 
-		if isTmp || forceHardDelete || isConfigHardDelete && !isConfigSoftDelete {
+		if isTmp || forceHardDelete || isConfigHardDelete && !isConfigSoftDelete && !forceSoftDelete {
 			hardDelete([]string{path}, extractedArguments)
 		} else {
 			softDelete([]string{path}, extractedArguments)
