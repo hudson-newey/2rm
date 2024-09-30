@@ -1,55 +1,102 @@
-package models
+package models_test
 
-import "testing"
+import (
+	"hudson-newey/2rm/src/config"
+	"hudson-newey/2rm/src/models"
+	"path/filepath"
+	"testing"
+)
 
-func TestShouldHardDelete(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
+func loadConfig(path string) models.Config {
+	testConfigDir := "../../tests/assets/configs/"
+	absolutePath, _ := filepath.Abs(testConfigDir + path)
+	return config.ParseConfig(absolutePath)
 }
 
-func TestShouldHardDeleteFalse(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
+func TestShouldHardDelete(t *testing.T) {
+	testedConfig := loadConfig("valid.yml")
+
+	expected := true
+	realized := testedConfig.ShouldHardDelete("node_modules/")
+
+	if expected != realized {
+		t.Fatalf("Expected %v but got %v", expected, realized)
+	}
+}
+
+func TestShouldNotHardDelete(t *testing.T) {
+	testedConfig := loadConfig("valid.yml")
+
+	expected := false
+	realized := testedConfig.ShouldHardDelete("src/")
+
+	if expected != realized {
+		t.Fatalf("Expected %v but got %v", expected, realized)
+	}
 }
 
 func TestShouldHardDeleteEmpty(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
+	testedConfig := loadConfig("only_backups.yml")
+
+	expected := false
+	realized := testedConfig.ShouldHardDelete("node_modules/")
+
+	if expected != realized {
+		t.Fatalf("Expected %v but got %v", expected, realized)
+	}
 }
 
 func TestShouldSoftDelete(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
+	testedConfig := loadConfig("valid.yml")
+
+	expected := true
+	realized := testedConfig.ShouldSoftDelete("file.bak")
+
+	if expected != realized {
+		t.Fatalf("Expected %v but got %v", expected, realized)
+	}
 }
 
-func TestShouldSoftDeleteFalse(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
+func TestShouldNotSoftDelete(t *testing.T) {
+	testedConfig := loadConfig("valid.yml")
+
+	expected := false
+	realized := testedConfig.ShouldSoftDelete("file.txt")
+
+	if expected != realized {
+		t.Fatalf("Expected %v but got %v", expected, realized)
+	}
 }
 
 func TestShouldSoftDeleteEmpty(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
+	testedConfig := loadConfig("only_backups.yml")
+
+	expected := false
+	realized := testedConfig.ShouldSoftDelete("file.bak")
+
+	if expected != realized {
+		t.Fatalf("Expected %v but got %v", expected, realized)
+	}
 }
 
-func TestSoftDeleteDir(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
+func TestHardMatchesAbsolutePath(t *testing.T) {
+	testedConfig := loadConfig("abs_path.yml")
+
+	expected := true
+	realized := testedConfig.ShouldHardDelete("/tmp/2rm/")
+
+	if expected != realized {
+		t.Fatalf("Expected %v but got %v", expected, realized)
+	}
 }
 
-func TestSoftDeleteDirDefault(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
-}
+func TestSoftMatchesAbsolutePath(t *testing.T) {
+	testedConfig := loadConfig("abs_path.yml")
 
-func TestMatchesPatternFile(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
-}
+	expected := true
+	realized := testedConfig.ShouldSoftDelete("/home/john-doe/.local/share/2rm/config.yml")
 
-func TestMatchesPatternDirectory(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
-}
-
-func TestMatchesPatternGlobPostfix(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
-}
-
-func TestMatchesPatternGlobPrefix(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
-}
-
-func TestMatchesAbsolutePath(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
+	if expected != realized {
+		t.Fatalf("Expected %v but got %v", expected, realized)
+	}
 }

@@ -1,0 +1,3 @@
+soft:
+  - "*.bak"
+  - "backups/"

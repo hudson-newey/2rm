@@ -1,6 +1,7 @@
-package config
+package config_test
 
 import (
+	"hudson-newey/2rm/src/config"
 	"hudson-newey/2rm/src/models"
 	"path/filepath"
 	"reflect"
@@ -14,7 +15,7 @@ func assertConfig(t *testing.T, configPath string, expectedConfig models.Config)
 		t.Errorf("Failed to get absolute path")
 	}
 
-	realizedConfig := ParseConfig(absolutePath)
+	realizedConfig := config.ParseConfig(absolutePath)
 
 	if !reflect.DeepEqual(expectedConfig, realizedConfig) {
 		t.Errorf("Expected %v but got %v", expectedConfig, realizedConfig)

@@ -1,0 +1,4 @@
+hard:
+  - "/tmp/2rm/"
+soft:
+  - "/home/john-doe/.local/share/2rm/config.yml"

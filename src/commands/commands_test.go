@@ -1,7 +1,10 @@
-package commands
+package commands_test
 
-import "testing"
+import (
+	"hudson-newey/2rm/src/commands"
+	"testing"
+)
 
 func TestCommandsEcho(t *testing.T) {
-	Execute("echo 'Hello World'")
+	commands.Execute("echo 'Hello World'")
 }
