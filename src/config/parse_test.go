@@ -34,6 +34,9 @@ func TestParsingConfig(t *testing.T) {
 		Soft: []string{
 			"*.bak",
 		},
+		Protected: []string{
+			".ssh/",
+		},
 	}
 
 	assertConfig(t, "valid.yml", expectedConfig)

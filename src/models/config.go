@@ -1,11 +1,15 @@
 package models
 
-import "path/filepath"
+import (
+	"hudson-newey/2rm/src/util"
+	"path/filepath"
+)
 
 type Config struct {
-	Backups string
-	Hard    []string
-	Soft    []string
+	Backups   string
+	Hard      []string
+	Soft      []string
+	Protected []string
 }
 
 func (config Config) ShouldHardDelete(path string) bool {
@@ -28,6 +32,10 @@ func (config Config) ShouldSoftDelete(path string) bool {
 	}
 
 	return false
+}
+
+func (config Config) IsProtected(path string) bool {
+	return util.InArray(config.Protected, path)
 }
 
 // if the user has not specified a backup directory, we will use a default

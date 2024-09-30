@@ -8,8 +8,9 @@ Wraps the rm command with a more secure, safer, and more private version
 
 - `--hard` Do not soft-delete file
 - `--soft` Soft delete a file. A backup will be stored in `/tmp/2rm`
-- `--silent` Do not print out additional information priduced by 2rm. This is useful for scripting situations.
+- `--silent` Do not print out additional information priduced by 2rm. This is useful for scripting situations
 - `--dry-run` Perform a dry run and show all the files that would be deleted
+- `--bypass-protected` Using this flag will allow you to delete a file protected by the 2rm config
 
 ## Features
 
@@ -63,4 +64,11 @@ hard:
 # for a hard delete
 soft:
     - "*.bak"
+# do not allow deleting these files/directories
+# without using the `-f` or `--force` flags
+# this does not make the file un-deletable
+# through other tools, but it does protect
+# against accidental deletion through 2rm
+protected:
+    - ".ssh/"
 ```

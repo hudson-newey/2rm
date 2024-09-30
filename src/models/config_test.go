@@ -100,3 +100,25 @@ func TestSoftMatchesAbsolutePath(t *testing.T) {
 		t.Fatalf("Expected %v but got %v", expected, realized)
 	}
 }
+
+func TestIsProtected(t *testing.T) {
+	testedConfig := loadConfig("valid.yml")
+
+	expected := true
+	realized := testedConfig.IsProtected(".ssh/")
+
+	if expected != realized {
+		t.Fatalf("Expected %v but got %v", expected, realized)
+	}
+}
+
+func TestNotProtected(t *testing.T) {
+	testedConfig := loadConfig("valid.yml")
+
+	expected := false
+	realized := testedConfig.IsProtected("src/")
+
+	if expected != realized {
+		t.Fatalf("Expected %v but got %v", expected, realized)
+	}
+}

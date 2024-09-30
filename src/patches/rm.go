@@ -17,12 +17,14 @@ const HARD_DELETE_CLA = "--hard"
 const SOFT_DELETE_CLA = "--soft"
 const SILENT_CLA = "--silent"
 const DRY_RUN_CLA = "--dry-run"
+const BYPASS_PROTECTED_CLA = "--bypass-protected"
 
 func RmPatch(arguments []string, config models.Config) {
 	forceHardDelete := util.InArray(arguments, HARD_DELETE_CLA)
 	forceSoftDelete := util.InArray(arguments, SOFT_DELETE_CLA)
 	silent := util.InArray(arguments, SILENT_CLA)
 	dryRun := util.InArray(arguments, DRY_RUN_CLA)
+	bypassProtected := util.InArray(arguments, BYPASS_PROTECTED_CLA)
 
 	actionedArgs := removeUnNeededArguments(
 		removeDangerousArguments(arguments),
@@ -52,6 +54,13 @@ func RmPatch(arguments []string, config models.Config) {
 	for _, path := range filePaths {
 		absolutePath := relativeToAbsolute(path)
 		isTmp := isTmpPath(absolutePath)
+
+		isProtected := config.IsProtected(absolutePath)
+		if isProtected && bypassProtected {
+			fmt.Println("Cannot delete protected file:", absolutePath)
+			fmt.Println("Use the --bypass-protected flag to force deletion")
+			continue
+		}
 
 		isConfigHardDelete := config.ShouldHardDelete(absolutePath)
 		isConfigSoftDelete := config.ShouldSoftDelete(absolutePath)
