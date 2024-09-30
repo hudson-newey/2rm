@@ -16,11 +16,13 @@ const TRASH_DIR_PERMISSIONS = 0755
 const HARD_DELETE_CLA = "--hard"
 const SOFT_DELETE_CLA = "--soft"
 const SILENT_CLA = "--silent"
+const DRY_RUN_CLA = "--dry-run"
 
 func RmPatch(arguments []string, config models.Config) {
 	forceHardDelete := util.InArray(arguments, HARD_DELETE_CLA)
 	forceSoftDelete := util.InArray(arguments, SOFT_DELETE_CLA)
 	silent := util.InArray(arguments, SILENT_CLA)
+	dryRun := util.InArray(arguments, DRY_RUN_CLA)
 
 	actionedArgs := removeUnNeededArguments(
 		removeDangerousArguments(arguments),
@@ -41,6 +43,10 @@ func RmPatch(arguments []string, config models.Config) {
 	debugStatement := strings.Join(filePaths, " ")
 	if !silent {
 		fmt.Println(debugStatement)
+	}
+
+	if dryRun {
+		return
 	}
 
 	for _, path := range filePaths {

@@ -9,6 +9,7 @@ Wraps the rm command with a more secure, safer, and more private version
 - `--hard` Do not soft-delete file
 - `--soft` Soft delete a file. A backup will be stored in `/tmp/2rm`
 - `--silent` Do not print out additional information priduced by 2rm. This is useful for scripting situations.
+- `--dry-run` Perform a dry run and show all the files that would be deleted
 
 ## Features
 
@@ -53,10 +54,10 @@ You can specify what directories are soft-deleted anb hard-deleted by using the 
 # backed up in the `backups` directory
 backups: /tmp/2rm/
 hard:
-    - node_modules/
-    - target/
-    - .angular/
-    - .next/
+    - "node_modules/"
+    - "target/"
+    - ".angular/"
+    - ".next/"
 # always soft delete backup files, 
 # regardless of it they are configured
 # for a hard delete
