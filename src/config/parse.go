@@ -11,6 +11,13 @@ import (
 func ParseConfig(path string) models.Config {
 	parsedConfig := models.Config{}
 
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		// if the config file does not exist, we want to return an empty config
+		// this will act as a default config
+		return parsedConfig
+	}
+
 	content, err := os.ReadFile(path)
 	if err != nil {
 		log.Fatal(err)

@@ -26,6 +26,12 @@ func RmPatch(arguments []string, config models.Config) {
 		removeDangerousArguments(arguments),
 	)
 
+	if shouldPassthrough(actionedArgs) {
+		command := "rm " + strings.Join(actionedArgs, " ")
+		commands.Execute(command)
+		return
+	}
+
 	filePaths := extractFilePaths(actionedArgs)
 	extractedArguments := extractArguments(actionedArgs)
 
@@ -53,6 +59,20 @@ func RmPatch(arguments []string, config models.Config) {
 			softDelete([]string{path}, extractedArguments, softDeleteDir)
 		}
 	}
+}
+
+// sometimes we want to pass through the arguments to the original rm command
+// e.g. when executing --help or --version
+func shouldPassthrough(arguments []string) bool {
+	passthroughArguments := []string{"--help", "--version"}
+
+	for _, arg := range arguments {
+		if util.InArray(passthroughArguments, arg) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func removeUnNeededArguments(arguments []string) []string {

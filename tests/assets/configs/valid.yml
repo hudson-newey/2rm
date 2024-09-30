@@ -1,0 +1,8 @@
+backups: /tmp/2rm/
+hard:
+    - node_modules/
+    - target/
+    - .angular/
+    - .next/
+soft:
+    - "*.bak"

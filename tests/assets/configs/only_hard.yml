@@ -1,0 +1,5 @@
+hard:
+    - node_modules/
+    - target/
+    - .angular/
+    - .next/
