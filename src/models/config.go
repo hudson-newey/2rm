@@ -6,9 +6,24 @@ import (
 )
 
 type Config struct {
-	Backups   string
-	Hard      []string
-	Soft      []string
+	// the backup location for soft-deletes
+	Backups string
+
+	// any file paths that match these patterns will be overwritten with
+	// zeros when deleted
+	Overwrite []string
+
+	// any file paths that match these patterns will be hard-deleted
+	Hard []string
+
+	// any file paths that match these patterns will be soft-deleted
+	// soft-deletes take precedence over hard-deletes
+	// meaning that if a file matches both a hard and soft delete pattern
+	// the file will be soft-deleted
+	Soft []string
+
+	// any file paths that match these patterns will be protected from deletion
+	// protected files cannot be deleted without the --bypass-protected flag
 	Protected []string
 }
 
@@ -26,6 +41,17 @@ func (config Config) ShouldHardDelete(path string) bool {
 func (config Config) ShouldSoftDelete(path string) bool {
 	for _, softDeletePath := range config.Soft {
 		matched := matchesPattern(softDeletePath, path)
+		if matched {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (config Config) ShouldOverwrite(path string) bool {
+	for _, overwritePath := range config.Overwrite {
+		matched := matchesPattern(overwritePath, path)
 		if matched {
 			return true
 		}

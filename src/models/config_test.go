@@ -122,3 +122,25 @@ func TestNotProtected(t *testing.T) {
 		t.Fatalf("Expected %v but got %v", expected, realized)
 	}
 }
+
+func TestShouldOverwrite(t *testing.T) {
+	testedConfig := loadConfig("valid.yml")
+
+	expected := true
+	realized := testedConfig.ShouldOverwrite(".ssh/test.pem")
+
+	if expected != realized {
+		t.Fatalf("Expected %v but got %v", expected, realized)
+	}
+}
+
+func TestNotShouldOverwrite(t *testing.T) {
+	testedConfig := loadConfig("valid.yml")
+
+	expected := false
+	realized := testedConfig.ShouldOverwrite("non-existent.txt")
+
+	if expected != realized {
+		t.Fatalf("Expected %v but got %v", expected, realized)
+	}
+}

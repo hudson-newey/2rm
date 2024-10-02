@@ -2,10 +2,11 @@
 
 "rm with guard rails"
 
-Wraps the rm command with a more secure, safer, and more private version
+A wrapper for the "rm" command with soft-deletes, config-based deletion, debug information, and saner defaults
 
-## Command line arguments
+## Additional command line arguments
 
+- `--overwrite` Overwrite the disk location location with zeros
 - `--hard` Do not soft-delete file
 - `--soft` Soft delete a file. A backup will be stored in `/tmp/2rm`
 - `--silent` Do not print out additional information priduced by 2rm. This is useful for scripting situations
@@ -42,6 +43,23 @@ By using the `/tmp` directory, the operating system will **automatically hard de
 Sometimes you want to hard delete a file/directory every time that you run the `rm` command e.g. you probably want your `node_modules` hard deleted every time and never want to soft delete them.
 In this case, you can modify your `~/.local/share/2rm/config.yml` file to always hard delete `node_modules`.
 
+### Overwriting disk location with zeros
+
+When deleting a file with the linux inbuilt `rm` command, the file is still avaliable on disk.
+
+Meaning that the file can still be recovered by any sufficiantly technical user.
+
+This can be problematic when dealing with sensitive files such as private keys that if leaked could lead to catastrophic consequences.
+
+You can overwrite a files disk location (rendering it unrecoverable) by using the `--overwrite` flag.
+
+2rm will still soft-delete the file by default, but the soft-deleted file will be completely filled with zeros.
+
+I made the decision that overwritten files will still be soft deleted because it might be useful for timestamp logging/auditing purposes.
+E.g. "when did I overwrite xyz"
+
+If you want to fully delete a file from disk and the file system use both the `--overwrite` and `--hard` flags.
+
 ### Config-based deletion
 
 You can specify what directories are soft-deleted anb hard-deleted by using the `~/.local/share/2rm/config.yml` file.
@@ -54,6 +72,14 @@ You can specify what directories are soft-deleted anb hard-deleted by using the 
 # any files that are soft deleted will be
 # backed up in the `backups` directory
 backups: /tmp/2rm/
+# whenever files matching these paths are deleted
+# the disk location will be overwritten with zeros
+overwrite:
+    # when deleting ssh keys, we always want to 
+    # overwrite them with zeros to protect
+    # against attackers recovering the production
+    # ssh keys
+    - ".ssh/*"
 hard:
     - "node_modules/"
     - "target/"

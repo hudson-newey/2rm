@@ -18,6 +18,7 @@ const SOFT_DELETE_CLA = "--soft"
 const SILENT_CLA = "--silent"
 const DRY_RUN_CLA = "--dry-run"
 const BYPASS_PROTECTED_CLA = "--bypass-protected"
+const OVERWRITE_CLA = "--overwrite"
 
 func RmPatch(arguments []string, config models.Config) {
 	forceHardDelete := util.InArray(arguments, HARD_DELETE_CLA)
@@ -25,6 +26,7 @@ func RmPatch(arguments []string, config models.Config) {
 	silent := util.InArray(arguments, SILENT_CLA)
 	dryRun := util.InArray(arguments, DRY_RUN_CLA)
 	bypassProtected := util.InArray(arguments, BYPASS_PROTECTED_CLA)
+	overwrite := util.InArray(arguments, OVERWRITE_CLA)
 
 	actionedArgs := removeUnNeededArguments(
 		removeDangerousArguments(arguments),
@@ -65,6 +67,18 @@ func RmPatch(arguments []string, config models.Config) {
 		isConfigHardDelete := config.ShouldHardDelete(absolutePath)
 		isConfigSoftDelete := config.ShouldSoftDelete(absolutePath)
 
+		// overwriting a file is not exclusive to hard/soft deletes
+		// meaning that you can overwrite the contents of a file with zeros and
+		// also soft delete it
+		// I have made this decision because I think soft-deleting an
+		// overwritten file has auditing/logging use cases
+		// e.g. Who deleted this file? When was it deleted?
+		// if we hard deleted the file, we would lose this information
+		isConfigOverwrite := config.ShouldOverwrite(absolutePath)
+		if overwrite || isConfigOverwrite {
+			overwriteFile(absolutePath)
+		}
+
 		if isTmp || forceHardDelete || isConfigHardDelete && !isConfigSoftDelete && !forceSoftDelete {
 			hardDelete([]string{path}, extractedArguments)
 		} else {
@@ -91,8 +105,16 @@ func shouldPassthrough(arguments []string) bool {
 }
 
 func removeUnNeededArguments(arguments []string) []string {
-	unNeededArguments := []string{"-r", HARD_DELETE_CLA, SOFT_DELETE_CLA, SILENT_CLA}
 	returnedArguments := []string{}
+	unNeededArguments := []string{
+		"-r",
+		HARD_DELETE_CLA,
+		SOFT_DELETE_CLA,
+		SILENT_CLA,
+		DRY_RUN_CLA,
+		BYPASS_PROTECTED_CLA,
+		OVERWRITE_CLA,
+	}
 
 	for _, arg := range arguments {
 		if !util.InArray(unNeededArguments, arg) {
@@ -204,4 +226,28 @@ func softDelete(filePaths []string, arguments []string, tempDir string) {
 func hardDelete(filePaths []string, arguments []string) {
 	command := "rm -r " + strings.Join(arguments, " ") + " " + strings.Join(filePaths, " ")
 	commands.Execute(command)
+}
+
+func overwriteFile(filePath string) {
+	file, err := os.OpenFile(filePath, os.O_RDWR, 0644)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		os.Exit(2)
+	}
+	defer file.Close()
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		fmt.Println("Error getting file info:", err)
+		os.Exit(2)
+	}
+
+	fileSize := fileInfo.Size()
+	zeroBytes := make([]byte, fileSize)
+
+	_, err = file.WriteAt(zeroBytes, 0)
+	if err != nil {
+		fmt.Println("Error writing to file:", err)
+		os.Exit(2)
+	}
 }

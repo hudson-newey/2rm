@@ -1,4 +1,6 @@
 backups: /tmp/2rm/
+overwrite:
+    - ".ssh/*"
 hard:
     - "node_modules/"
     - "target/"

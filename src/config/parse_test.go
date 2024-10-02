@@ -25,6 +25,9 @@ func assertConfig(t *testing.T, configPath string, expectedConfig models.Config)
 func TestParsingConfig(t *testing.T) {
 	expectedConfig := models.Config{
 		Backups: "/tmp/2rm/",
+		Overwrite: []string{
+			".ssh/*",
+		},
 		Hard: []string{
 			"node_modules/",
 			"target/",
