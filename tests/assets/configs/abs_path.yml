@@ -2,3 +2,7 @@ hard:
   - "/tmp/2rm/"
 soft:
   - "/home/john-doe/.local/share/2rm/config.yml"
+protected:
+  - "/home/john-doe/.ssh/id_rsa"
+overwrite:
+  - "/home/john-doe/.ssh/key.pem"

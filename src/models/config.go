@@ -3,6 +3,7 @@ package models
 import (
 	"hudson-newey/2rm/src/util"
 	"path/filepath"
+	"strings"
 )
 
 type Config struct {
@@ -77,6 +78,13 @@ func (config Config) SoftDeleteDir() string {
 }
 
 func matchesPattern(pattern string, path string) bool {
+	// we put a wildcard at the start so that we don't have to match full
+	// paths
+	isAbsolutePath := strings.HasPrefix(path, "/")
+	if !isAbsolutePath {
+		pattern = "*" + pattern
+	}
+
 	matched, _ := filepath.Match(pattern, path)
 	return matched
 }

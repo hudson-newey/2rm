@@ -13,134 +13,161 @@ func loadConfig(path string) models.Config {
 	return config.ParseConfig(absolutePath)
 }
 
-func TestShouldHardDelete(t *testing.T) {
-	testedConfig := loadConfig("valid.yml")
+func assertConfig(
+	t *testing.T,
+	configPath string,
+	configFunction func(models.Config, string) bool,
+	testedPath string,
+	expectedResult bool,
+) {
+	expectedConfig := expectedResult
 
-	expected := true
-	realized := testedConfig.ShouldHardDelete("node_modules/")
+	testedConfig := loadConfig(configPath)
+	realizedConfig := configFunction(testedConfig, testedPath)
 
-	if expected != realized {
-		t.Fatalf("Expected %v but got %v", expected, realized)
+	if expectedConfig != realizedConfig {
+		t.Fatalf("Expected %v but got %v", expectedConfig, realizedConfig)
 	}
 }
 
-func TestShouldNotHardDelete(t *testing.T) {
-	testedConfig := loadConfig("valid.yml")
-
-	expected := false
-	realized := testedConfig.ShouldHardDelete("src/")
-
-	if expected != realized {
-		t.Fatalf("Expected %v but got %v", expected, realized)
+func runTests(t *testing.T, tests []Test) {
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			assertConfig(t, test.configPath, test.configFunction, test.testedPath, test.expectedResult)
+		})
 	}
 }
 
-func TestShouldHardDeleteEmpty(t *testing.T) {
-	testedConfig := loadConfig("only_backups.yml")
-
-	expected := false
-	realized := testedConfig.ShouldHardDelete("node_modules/")
-
-	if expected != realized {
-		t.Fatalf("Expected %v but got %v", expected, realized)
-	}
+type Test struct {
+	name           string
+	configPath     string
+	configFunction func(models.Config, string) bool
+	testedPath     string
+	expectedResult bool
 }
 
-func TestShouldSoftDelete(t *testing.T) {
-	testedConfig := loadConfig("valid.yml")
+func TestConfig(t *testing.T) {
+	tests := []Test{
+		// hard deletes
+		{
+			name:           "HardDelete",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldHardDelete,
+			testedPath:     "node_modules/",
+			expectedResult: true,
+		},
+		{
+			name:           "NotHardDelete",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldHardDelete,
+			testedPath:     "src/",
+			expectedResult: false,
+		},
+		{
+			name:           "HardDeleteEmpty",
+			configPath:     "only_backups.yml",
+			configFunction: models.Config.ShouldHardDelete,
+			testedPath:     "node_modules/",
+			expectedResult: false,
+		},
+		{
+			name:           "HardMatchesAbsolutePath",
+			configPath:     "abs_path.yml",
+			configFunction: models.Config.ShouldHardDelete,
+			testedPath:     "/tmp/2rm/",
+			expectedResult: true,
+		},
 
-	expected := true
-	realized := testedConfig.ShouldSoftDelete("file.bak")
+		// soft deletes
+		{
+			name:           "SoftDelete",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldSoftDelete,
+			testedPath:     "file.bak",
+			expectedResult: true,
+		},
+		{
+			name:           "NotSoftDelete",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldSoftDelete,
+			testedPath:     "file.txt",
+			expectedResult: false,
+		},
+		{
+			name:           "SoftDeleteEmpty",
+			configPath:     "only_backups.yml",
+			configFunction: models.Config.ShouldSoftDelete,
+			testedPath:     "file.bak",
+			expectedResult: false,
+		},
+		{
+			name:           "SoftMatchesAbsolutePath",
+			configPath:     "abs_path.yml",
+			configFunction: models.Config.ShouldSoftDelete,
+			testedPath:     "/home/john-doe/.local/share/2rm/config.yml",
+			expectedResult: true,
+		},
 
-	if expected != realized {
-		t.Fatalf("Expected %v but got %v", expected, realized)
+		// protected files
+		{
+			name:           "IsProtected",
+			configPath:     "valid.yml",
+			configFunction: models.Config.IsProtected,
+			testedPath:     ".ssh/",
+			expectedResult: true,
+		},
+		{
+			name:           "NotProtected",
+			configPath:     "valid.yml",
+			configFunction: models.Config.IsProtected,
+			testedPath:     "src/",
+			expectedResult: false,
+		},
+		{
+			name:           "ProtectedEmpty",
+			configPath:     "only_backups.yml",
+			configFunction: models.Config.IsProtected,
+			testedPath:     ".ssh/",
+			expectedResult: false,
+		},
+		{
+			name:           "ProtectedMatchesAbsolutePath",
+			configPath:     "abs_path.yml",
+			configFunction: models.Config.IsProtected,
+			testedPath:     "/home/john-doe/.ssh/id_rsa",
+			expectedResult: true,
+		},
+
+		// overwrite
+		{
+			name:           "Overwrite",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldOverwrite,
+			testedPath:     ".ssh/test.pem",
+			expectedResult: true,
+		},
+		{
+			name:           "DontOverwrite",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldOverwrite,
+			testedPath:     "non-existent.txt",
+			expectedResult: false,
+		},
+		{
+			name:           "OverwriteEmpty",
+			configPath:     "only_backups.yml",
+			configFunction: models.Config.ShouldOverwrite,
+			testedPath:     ".ssh/test.pem",
+			expectedResult: false,
+		},
+		{
+			name:           "OverwriteAbsolutePath",
+			configPath:     "abs_path.yml",
+			configFunction: models.Config.ShouldOverwrite,
+			testedPath:     "/home/john-doe/.ssh/key.pem",
+			expectedResult: true,
+		},
 	}
-}
 
-func TestShouldNotSoftDelete(t *testing.T) {
-	testedConfig := loadConfig("valid.yml")
-
-	expected := false
-	realized := testedConfig.ShouldSoftDelete("file.txt")
-
-	if expected != realized {
-		t.Fatalf("Expected %v but got %v", expected, realized)
-	}
-}
-
-func TestShouldSoftDeleteEmpty(t *testing.T) {
-	testedConfig := loadConfig("only_backups.yml")
-
-	expected := false
-	realized := testedConfig.ShouldSoftDelete("file.bak")
-
-	if expected != realized {
-		t.Fatalf("Expected %v but got %v", expected, realized)
-	}
-}
-
-func TestHardMatchesAbsolutePath(t *testing.T) {
-	testedConfig := loadConfig("abs_path.yml")
-
-	expected := true
-	realized := testedConfig.ShouldHardDelete("/tmp/2rm/")
-
-	if expected != realized {
-		t.Fatalf("Expected %v but got %v", expected, realized)
-	}
-}
-
-func TestSoftMatchesAbsolutePath(t *testing.T) {
-	testedConfig := loadConfig("abs_path.yml")
-
-	expected := true
-	realized := testedConfig.ShouldSoftDelete("/home/john-doe/.local/share/2rm/config.yml")
-
-	if expected != realized {
-		t.Fatalf("Expected %v but got %v", expected, realized)
-	}
-}
-
-func TestIsProtected(t *testing.T) {
-	testedConfig := loadConfig("valid.yml")
-
-	expected := true
-	realized := testedConfig.IsProtected(".ssh/")
-
-	if expected != realized {
-		t.Fatalf("Expected %v but got %v", expected, realized)
-	}
-}
-
-func TestNotProtected(t *testing.T) {
-	testedConfig := loadConfig("valid.yml")
-
-	expected := false
-	realized := testedConfig.IsProtected("src/")
-
-	if expected != realized {
-		t.Fatalf("Expected %v but got %v", expected, realized)
-	}
-}
-
-func TestShouldOverwrite(t *testing.T) {
-	testedConfig := loadConfig("valid.yml")
-
-	expected := true
-	realized := testedConfig.ShouldOverwrite(".ssh/test.pem")
-
-	if expected != realized {
-		t.Fatalf("Expected %v but got %v", expected, realized)
-	}
-}
-
-func TestNotShouldOverwrite(t *testing.T) {
-	testedConfig := loadConfig("valid.yml")
-
-	expected := false
-	realized := testedConfig.ShouldOverwrite("non-existent.txt")
-
-	if expected != realized {
-		t.Fatalf("Expected %v but got %v", expected, realized)
-	}
+	runTests(t, tests)
 }
