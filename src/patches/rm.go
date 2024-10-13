@@ -7,26 +7,23 @@ import (
 	"strings"
 	"time"
 
-	"hudson-newey/2rm/src/commands"
+	"hudson-newey/2rm/src/cli"
 	"hudson-newey/2rm/src/models"
 	"hudson-newey/2rm/src/util"
+
+	"github.com/gen2brain/beeep"
 )
 
 const TRASH_DIR_PERMISSIONS = 0755
-const HARD_DELETE_CLA = "--hard"
-const SOFT_DELETE_CLA = "--soft"
-const SILENT_CLA = "--silent"
-const DRY_RUN_CLA = "--dry-run"
-const BYPASS_PROTECTED_CLA = "--bypass-protected"
-const OVERWRITE_CLA = "--overwrite"
 
 func RmPatch(arguments []string, config models.Config) {
-	forceHardDelete := util.InArray(arguments, HARD_DELETE_CLA)
-	forceSoftDelete := util.InArray(arguments, SOFT_DELETE_CLA)
-	silent := util.InArray(arguments, SILENT_CLA)
-	dryRun := util.InArray(arguments, DRY_RUN_CLA)
-	bypassProtected := util.InArray(arguments, BYPASS_PROTECTED_CLA)
-	overwrite := util.InArray(arguments, OVERWRITE_CLA)
+	forceHardDelete := util.InArray(arguments, cli.HARD_DELETE_CLA)
+	forceSoftDelete := util.InArray(arguments, cli.SOFT_DELETE_CLA)
+	silent := util.InArray(arguments, cli.SILENT_CLA)
+	dryRun := util.InArray(arguments, cli.DRY_RUN_CLA)
+	bypassProtected := util.InArray(arguments, cli.BYPASS_PROTECTED_CLA)
+	overwrite := util.InArray(arguments, cli.OVERWRITE_CLA)
+	shouldNotify := util.InArray(arguments, cli.NOTIFICATION_CLA)
 
 	actionedArgs := removeUnNeededArguments(
 		removeDangerousArguments(arguments),
@@ -34,7 +31,7 @@ func RmPatch(arguments []string, config models.Config) {
 
 	if shouldPassthrough(actionedArgs) {
 		command := "rm " + strings.Join(actionedArgs, " ")
-		commands.Execute(command)
+		util.Execute(command)
 		return
 	}
 
@@ -88,6 +85,14 @@ func RmPatch(arguments []string, config models.Config) {
 			softDelete([]string{path}, extractedArguments, softDeleteDir)
 		}
 	}
+
+	if shouldNotify {
+		fileNames := strings.Join(filePaths, ", ")
+		err := beeep.Notify("2rm", "Finished deletion request '"+fileNames+"'", "")
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 // sometimes we want to pass through the arguments to the original rm command
@@ -108,12 +113,13 @@ func removeUnNeededArguments(arguments []string) []string {
 	returnedArguments := []string{}
 	unNeededArguments := []string{
 		"-r",
-		HARD_DELETE_CLA,
-		SOFT_DELETE_CLA,
-		SILENT_CLA,
-		DRY_RUN_CLA,
-		BYPASS_PROTECTED_CLA,
-		OVERWRITE_CLA,
+		cli.HARD_DELETE_CLA,
+		cli.SOFT_DELETE_CLA,
+		cli.SILENT_CLA,
+		cli.DRY_RUN_CLA,
+		cli.BYPASS_PROTECTED_CLA,
+		cli.OVERWRITE_CLA,
+		cli.NOTIFICATION_CLA,
 	}
 
 	for _, arg := range arguments {
@@ -206,7 +212,7 @@ func softDelete(filePaths []string, arguments []string, tempDir string) {
 		// everything other than a "y"/"yes" response will not delete the file
 		if response != "y" && response != "yes" {
 			fmt.Println("Exiting without removing file(s).")
-			os.Exit(1)
+			return
 		}
 	}
 
@@ -219,13 +225,13 @@ func softDelete(filePaths []string, arguments []string, tempDir string) {
 		backupLocation := backupDirectory + "/" + backupFileName
 
 		moveCommand := "mv " + commandArguments + " " + absoluteSrcPath + " " + backupLocation
-		commands.Execute(moveCommand)
+		util.Execute(moveCommand)
 	}
 }
 
 func hardDelete(filePaths []string, arguments []string) {
 	command := "rm -r " + strings.Join(arguments, " ") + " " + strings.Join(filePaths, " ")
-	commands.Execute(command)
+	util.Execute(command)
 }
 
 func overwriteFile(filePath string) {

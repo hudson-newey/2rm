@@ -12,6 +12,7 @@ A wrapper for the "rm" command with soft-deletes, config-based deletion, debug i
 - `--silent` Do not print out additional information priduced by 2rm. This is useful for scripting situations
 - `--dry-run` Perform a dry run and show all the files that would be deleted
 - `--bypass-protected` Using this flag will allow you to delete a file protected by the 2rm config
+- `--notify` Send a system notification once deletion is complete
 
 ## Features
 
