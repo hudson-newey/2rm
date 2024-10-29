@@ -19,6 +19,9 @@ jobs:
         with:
           go-version: "1.22.2"
 
+      - name: Install Pandoc
+        run: sudo apt install -y pandoc
+
       - name: Build Artifacts
         run: make
 
