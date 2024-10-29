@@ -14,6 +14,17 @@ A wrapper for the "rm" command with soft-deletes, config-based deletion, debug i
 - `--bypass-protected` Using this flag will allow you to delete a file protected by the 2rm config
 - `--notify` Send a system notification once deletion is complete
 
+## Unsupported command line arguments
+
+- `-r`, `-R`, `--recursive`
+- `-d`
+- `-v`
+- `--version`
+- `--help`
+- `--interactive[=WHEN]`
+- `--one-file-system`
+- `-f`, `--force` (partially implemented)
+
 ## Features
 
 ### Removes the ability to remove your root directory

@@ -47,6 +47,10 @@ You can override this behavior with the `-f` or `--force` flags.
 ```yml
 # ~/.local/share/2rm/config.yml
 
+# extend a config file that is based in the cloud
+# this allows you to use the same config across multiple machines
+extend: https://www.my-website.com/2rm.yml
+
 # while the backup config option is already supported, we should support
 # uploading backups to cloud locations such as s3
 backups: s3://my-bucket/backups

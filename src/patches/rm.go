@@ -36,7 +36,6 @@ func RmPatch(arguments []string, config models.Config) {
 	}
 
 	filePaths := extractFilePaths(actionedArgs)
-	extractedArguments := extractArguments(actionedArgs)
 
 	// a debug statement is useful for scripts, it provides explicit feedback
 	// and prints exactly what files were backed up / moved to the trash can
@@ -76,14 +75,9 @@ func RmPatch(arguments []string, config models.Config) {
 			overwriteFile(absolutePath)
 		}
 
-		if isTmp || forceHardDelete || isConfigHardDelete && !isConfigSoftDelete && !forceSoftDelete {
-			hardDelete([]string{path}, extractedArguments)
-		} else {
-			// this function will return the default soft delete directory
-			// if the user has not specified one in their config file
-			softDeleteDir := config.SoftDeleteDir()
-			softDelete([]string{path}, extractedArguments, softDeleteDir)
-		}
+		shouldHardDelete := isTmp || forceHardDelete || isConfigHardDelete && !isConfigSoftDelete && !forceSoftDelete
+
+		deletePath(absolutePath, shouldHardDelete, config, arguments)
 	}
 
 	if shouldNotify {
@@ -160,18 +154,6 @@ func extractFilePaths(input []string) []string {
 	return filePaths
 }
 
-func extractArguments(input []string) []string {
-	arguments := []string{}
-
-	for _, str := range input {
-		if strings.HasPrefix(str, "-") {
-			arguments = append(arguments, str)
-		}
-	}
-
-	return arguments
-}
-
 func isTmpPath(absolutePath string) bool {
 	return strings.HasPrefix(absolutePath, "/tmp")
 }
@@ -192,10 +174,34 @@ func backupFileName(path string) string {
 	return result + ".bak"
 }
 
+func deletePath(path string, hard bool, config models.Config, arguments []string) {
+	isInteractive := util.InArray(arguments, cli.INTERACTIVE_CLA)
+
+	if isInteractive {
+		fmt.Println("Are you sure you want to delete", path, "? (y/n)")
+		var response string
+		fmt.Scanln(&response)
+
+		if response != "y" && response != "yes" {
+			fmt.Println("Exiting without removing file(s).")
+			return
+		}
+	}
+
+	if hard {
+		hardDelete(path)
+	} else {
+		// this function will return the default soft delete directory
+		// if the user has not specified one in their config file
+		softDeletePath := config.SoftDeleteDir()
+		softDelete(path, softDeletePath)
+	}
+}
+
 // by default, we want to delete files to /tmp/2rm
 // however, if the user has specified a different directory in their config file
 // we use that instead
-func softDelete(filePaths []string, arguments []string, tempDir string) {
+func softDelete(filePath string, tempDir string) {
 	deletedTimestamp := time.Now().Format(time.RFC3339)
 	backupDirectory := tempDir + deletedTimestamp
 
@@ -216,22 +222,25 @@ func softDelete(filePaths []string, arguments []string, tempDir string) {
 		}
 	}
 
-	commandArguments := strings.Join(arguments, " ")
+	absoluteSrcPath := relativeToAbsolute(filePath)
 
-	for _, path := range filePaths {
-		absoluteSrcPath := relativeToAbsolute(path)
+	backupFileName := backupFileName(filePath)
+	backupLocation := backupDirectory + "/" + backupFileName
 
-		backupFileName := backupFileName(path)
-		backupLocation := backupDirectory + "/" + backupFileName
-
-		moveCommand := "mv " + commandArguments + " " + absoluteSrcPath + " " + backupLocation
-		util.Execute(moveCommand)
+	err = util.CopyFile(absoluteSrcPath, backupLocation)
+	if err != nil {
+		fmt.Println("Error moving file to trash:", err)
+		return
 	}
+
+	err = os.Remove(absoluteSrcPath)
 }
 
-func hardDelete(filePaths []string, arguments []string) {
-	command := "rm -r " + strings.Join(arguments, " ") + " " + strings.Join(filePaths, " ")
-	util.Execute(command)
+func hardDelete(filePath string) {
+	err := os.RemoveAll(filePath)
+	if err != nil {
+		fmt.Println("Error deleting file:", err)
+	}
 }
 
 func overwriteFile(filePath string) {
