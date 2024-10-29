@@ -1,6 +1,6 @@
 OUT_DIR=build
 
-.PHONY: clean build
+.PHONY: clean build test install docs
 
 build:
 	mkdir -p $(OUT_DIR)
@@ -13,4 +13,8 @@ clean:
 	rm -rf $(OUT_DIR)
 
 install:
-	cp ./build/2rm ~/.local/bin/2rm
+	cp ./$(OUT_DIR)/2rm ~/.local/bin/2rm
+
+docs:
+	mkdir -p $(OUT_DIR)
+	pandoc -s --to man ./README.md -o ./$(OUT_DIR)/2rm.1

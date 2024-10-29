@@ -16,13 +16,13 @@ A wrapper for the "rm" command with soft-deletes, config-based deletion, debug i
 
 ## Unsupported command line arguments
 
-- `-r`, `-R`, `--recursive`
-- `-d`
-- `-v`
-- `--version`
-- `--help`
-- `--interactive[=WHEN]`
-- `--one-file-system`
+- `-r`, `-R`, `--recursive` Recursively delete a directory of files
+- `-d` Only delete empty directories
+- `-v` Emit additional verbose information
+- `--version` Show version information
+- `--help` Show help information
+- `--interactive[=WHEN]` Interactive with a custom threshold
+- `--one-file-system` Do not allow cross-file-system deletes
 - `-f`, `--force` (partially implemented)
 
 ## Features
