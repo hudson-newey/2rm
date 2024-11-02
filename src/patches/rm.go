@@ -25,13 +25,18 @@ func RmPatch(arguments []string, config models.Config) {
 	overwrite := util.InArray(arguments, cli.OVERWRITE_CLA)
 	shouldNotify := util.InArray(arguments, cli.NOTIFICATION_CLA)
 
+	requestingHelp := util.InArray(arguments, cli.HELP_CLA)
+	requestingVersion := util.InArray(arguments, cli.VERSION_CLA)
+
 	actionedArgs := removeUnNeededArguments(
 		removeDangerousArguments(arguments),
 	)
 
-	if shouldPassthrough(actionedArgs) {
-		command := "rm " + strings.Join(actionedArgs, " ")
-		util.Execute(command)
+	if requestingHelp {
+		cli.PrintHelp()
+		return
+	} else if requestingVersion {
+		cli.PrintVersion()
 		return
 	}
 
@@ -87,20 +92,6 @@ func RmPatch(arguments []string, config models.Config) {
 			panic(err)
 		}
 	}
-}
-
-// sometimes we want to pass through the arguments to the original rm command
-// e.g. when executing --help or --version
-func shouldPassthrough(arguments []string) bool {
-	passthroughArguments := []string{"--help", "--version"}
-
-	for _, arg := range arguments {
-		if util.InArray(passthroughArguments, arg) {
-			return true
-		}
-	}
-
-	return false
 }
 
 func removeUnNeededArguments(arguments []string) []string {

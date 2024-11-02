@@ -4,23 +4,31 @@
 
 A wrapper for the "rm" command with soft-deletes, config-based deletion, debug information, and saner defaults
 
+## "GNU Like" command line arguments
+
+- `-i` Interactivly prompt before each deletion request
+- `--help` Display help information (without deletion)
+- `--version` Display version information (without deletion)
+
 ## Additional command line arguments
 
 - `--overwrite` Overwrite the disk location location with zeros
 - `--hard` Do not soft-delete file
-- `--soft` Soft delete a file. A backup will be stored in `/tmp/2rm`
+- `--soft` Soft delete a file and store a backup (default `/tmp/2rm`)
 - `--silent` Do not print out additional information priduced by 2rm. This is useful for scripting situations
 - `--dry-run` Perform a dry run and show all the files that would be deleted
 - `--bypass-protected` Using this flag will allow you to delete a file protected by the 2rm config
 - `--notify` Send a system notification once deletion is complete
+- `--force` Bypass protections
 
 ## Unsupported command line arguments
 
 - `-r`, `-R`, `--recursive` Recursively delete a directory of files
-- `-d` Only delete empty directories
-- `-v` Emit additional verbose information
+- `-d`, `--dir` Only delete empty directories
+- `-v`, `--verbose` Emit additional verbose information
 - `--version` Show version information
 - `--help` Show help information
+- `-I` Prompt if deleting more than three files
 - `--interactive[=WHEN]` Interactive with a custom threshold
 - `--one-file-system` Do not allow cross-file-system deletes
 - `-f`, `--force` (partially implemented)
