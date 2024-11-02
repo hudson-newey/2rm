@@ -7,7 +7,7 @@ A wrapper for the "rm" command with soft-deletes, config-based deletion, debug i
 ## "GNU Like" command line arguments
 
 - `-i` Interactivly prompt before each deletion request
-- `-I` Prompt if deleting more three files
+- `-I` Prompt if deleting more than the interactive threshold of files (default 3)
 - `--help` Display help information (without deletion)
 - `--version` Display version information (without deletion)
 
@@ -117,4 +117,9 @@ soft:
 # accidental deletion through 2rm
 protected:
     - ".ssh/"
+# when using the -I flag without any arguments, the user will be prompted
+# for confirmation before deleting each file if the number of files is
+# greater or equal to this threshold
+# default is 3 files/directories
+interactive: 10
 ```

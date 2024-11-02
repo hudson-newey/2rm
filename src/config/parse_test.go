@@ -41,6 +41,7 @@ func TestParsingConfig(t *testing.T) {
 		Protected: []string{
 			".ssh/",
 		},
+		Interactive: 10,
 	}
 
 	assertConfig(t, "valid.yml", expectedConfig)

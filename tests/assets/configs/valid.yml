@@ -11,3 +11,4 @@ soft:
     - "*.bak"
 protected:
     - ".ssh/"
+interactive: 10

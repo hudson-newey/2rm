@@ -11,7 +11,8 @@ Mark FILE(s) for deletion.
 "GNU Like" OPTION(s):
 -i					Prompt before every deletion request
 
--I 					Prompt once before deleting more than three files
+-I 					Prompt once before deleting more than the interactive
+					threshold (default 3)
 
 -f, --force				Bypass protections
 

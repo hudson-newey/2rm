@@ -26,6 +26,12 @@ type Config struct {
 	// any file paths that match these patterns will be protected from deletion
 	// protected files cannot be deleted without the --bypass-protected flag
 	Protected []string
+
+	// when using the -I flag without any arguments, the user will be prompted
+	// for confirmation before deleting each file if the number of files is
+	// greater or equal to this threshold
+	// default is 3 files/directories
+	Interactive int
 }
 
 func (config Config) ShouldHardDelete(path string) bool {
@@ -75,6 +81,16 @@ func (config Config) SoftDeleteDir() string {
 	}
 
 	return "/tmp/2rm/"
+}
+
+func (config Config) InteractiveThreshold() int {
+	const DEFAULT_INTERACTIVE_THRESHOLD = 3
+
+	if config.Interactive == 0 {
+		return DEFAULT_INTERACTIVE_THRESHOLD
+	}
+
+	return config.Interactive
 }
 
 func matchesPattern(pattern string, path string) bool {

@@ -15,7 +15,6 @@ import (
 )
 
 const TRASH_DIR_PERMISSIONS = 0755
-const INTERACTIVE_THRESHOLD = 3
 
 func RmPatch(arguments []string, config models.Config) {
 	silent := util.InArray(arguments, cli.SILENT_CLA)
@@ -117,7 +116,7 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 
 	hasInteraciveCla := util.InArray(arguments, cli.INTERACTIVE_CLA)
 	hasGroupInteractiveCla := util.InArray(arguments, cli.INTERACTIVE_GROUP_CLA)
-	isInteractiveGroup := hasGroupInteractiveCla && len(paths) >= INTERACTIVE_THRESHOLD
+	isInteractiveGroup := hasGroupInteractiveCla && len(paths) >= config.InteractiveThreshold()
 	isInteractive := hasInteraciveCla || isInteractiveGroup
 
 	for _, path := range paths {
