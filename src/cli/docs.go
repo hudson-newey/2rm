@@ -11,10 +11,18 @@ Mark FILE(s) for deletion.
 "GNU Like" OPTION(s):
 -i					Prompt before every deletion request
 
+-r, -R, --recursive			Remove directories and their contents recursively
+
 -I 					Prompt once before deleting more than the interactive
 					threshold (default 3)
 
 -f, --force				Bypass protections
+
+-v, --verbose			Add additional information to the output
+
+--help					Display this help and (without deleting anything)
+
+--version				Output version information (without deleting anything)
 
 2rm OPTION(s) Flags:
 

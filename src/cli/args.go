@@ -9,6 +9,9 @@ const BYPASS_PROTECTED_CLA = "--bypass-protected"
 const OVERWRITE_CLA = "--overwrite"
 const NOTIFICATION_CLA = "--notify"
 
+const VERBOSE_CLA = "--verbose"
+const VERBOSE_SHORT_CLA = "-v"
+
 // gnu rm CLI arguments
 const INTERACTIVE_CLA = "-i"
 const INTERACTIVE_GROUP_CLA = "-I"

@@ -113,11 +113,17 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 	forceSoftDelete := util.InArray(arguments, cli.SOFT_DELETE_CLA)
 	bypassProtected := util.InArray(arguments, cli.BYPASS_PROTECTED_CLA)
 	overwrite := util.InArray(arguments, cli.OVERWRITE_CLA)
+	silent := util.InArray(arguments, cli.SILENT_CLA)
 
 	hasInteraciveCla := util.InArray(arguments, cli.INTERACTIVE_CLA)
 	hasGroupInteractiveCla := util.InArray(arguments, cli.INTERACTIVE_GROUP_CLA)
 	isInteractiveGroup := hasGroupInteractiveCla && len(paths) >= config.InteractiveThreshold()
 	isInteractive := hasInteraciveCla || isInteractiveGroup
+
+	hasVerboseCla := util.InArray(arguments, cli.VERBOSE_CLA)
+	if !hasVerboseCla {
+		hasVerboseCla = util.InArray(arguments, cli.VERBOSE_SHORT_CLA)
+	}
 
 	for _, path := range paths {
 		if isInteractive {
@@ -159,6 +165,10 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 		shouldHardDelete := isTmp || forceHardDelete || isConfigHardDelete && !isConfigSoftDelete && !forceSoftDelete
 
 		deletePath(absolutePath, shouldHardDelete, config)
+
+		if hasVerboseCla && !silent {
+			fmt.Printf("removed '%s'\n", path)
+		}
 	}
 }
 
