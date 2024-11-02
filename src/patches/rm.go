@@ -158,27 +158,33 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 
 		shouldHardDelete := isTmp || forceHardDelete || isConfigHardDelete && !isConfigSoftDelete && !forceSoftDelete
 
-		deletePath(absolutePath, shouldHardDelete, config, arguments)
+		deletePath(absolutePath, shouldHardDelete, config)
 	}
 }
 
-func deletePath(path string, hard bool, config models.Config, arguments []string) {
+func deletePath(path string, hard bool, config models.Config) {
 	if hard {
 		hardDelete(path)
 	} else {
-		// this function will return the default soft delete directory
-		// if the user has not specified one in their config file
-		softDeletePath := config.SoftDeleteDir()
-		softDelete(path, softDeletePath)
+		softDeleteStart(path, config)
 	}
+}
+
+func softDeleteStart(filePath string, config models.Config) {
+	// this function will return the default soft delete directory
+	// if the user has not specified one in their config file
+	softDeletePath := config.SoftDeleteDir()
+	softDelete(filePath, softDeletePath, "")
 }
 
 // by default, we want to delete files to /tmp/2rm
 // however, if the user has specified a different directory in their config file
 // we use that instead
-func softDelete(filePath string, tempDir string) {
-	deletedTimestamp := time.Now().Format(time.RFC3339)
-	backupDirectory := tempDir + deletedTimestamp
+func softDelete(filePath string, tempDir string, backupDirectory string) {
+	if backupDirectory == "" {
+		deletedTimestamp := time.Now().Format(time.RFC3339)
+		backupDirectory = tempDir + deletedTimestamp
+	}
 
 	err := os.MkdirAll(backupDirectory, TRASH_DIR_PERMISSIONS)
 	if err != nil {
@@ -195,6 +201,26 @@ func softDelete(filePath string, tempDir string) {
 			fmt.Println("Exiting without removing file(s).")
 			return
 		}
+	}
+
+	isDirectory := util.IsDirectory(filePath)
+	if isDirectory {
+		// recursively delete all files in the directory
+		// before deleting the directory itself
+		directoryFiles := util.ListFiles(filePath)
+
+		for _, file := range directoryFiles {
+			softDelete(file, tempDir, backupDirectory)
+		}
+
+		// hard delete the directory itself
+		// because we have replicated the directory structure in the trash can
+		// we don't need to keep the original directory
+		//
+		// TODO: we should probably keep the original directory so that the
+		// same file permissions and other edge cases are carried across
+		hardDelete(filePath)
+		return
 	}
 
 	absoluteSrcPath := relativeToAbsolute(filePath)
