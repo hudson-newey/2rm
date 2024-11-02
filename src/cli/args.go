@@ -11,5 +11,6 @@ const NOTIFICATION_CLA = "--notify"
 
 // gnu rm CLI arguments
 const INTERACTIVE_CLA = "-i"
+const INTERACTIVE_GROUP_CLA = "-I"
 const HELP_CLA = "--help"
 const VERSION_CLA = "--version"

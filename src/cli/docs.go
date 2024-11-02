@@ -10,15 +10,28 @@ Mark FILE(s) for deletion.
 
 "GNU Like" OPTION(s):
 -i					Prompt before every deletion request
---force					Bypass 2rm protections
+
+-I 					Prompt once before deleting more than three files
+
+-f, --force				Bypass protections
 
 2rm OPTION(s) Flags:
+
 --overwrite				Overwrite the disk location location with zeros
+
 --hard					Do not soft-delete FILE(s)
+
 --soft 					Soft delete a file and a store backup (default /tmp/2rm)
---silent				Do not print out additional information priduced by 2rm. This is useful for scripting situations
---dry-run				Perform a dry run and show all the files that would be deleted
---bypass-protected		Using this flag will allow you to delete a file protected by the 2rm config
+
+--silent				Do not print out additional information priduced by 2rm.
+					This is useful for scripting situations
+
+--dry-run				Perform a dry run and show all the files that would be
+					deleted if run without the dry-run flag
+
+--bypass-protected			Using this flag will allow you to delete a file
+					protected by the 2rm config
+
 --notify 				Send a system notification once deletion is complete
 
 By default, 2rm will soft-delete a file and store a backup (default /tmp/2rm)

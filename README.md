@@ -7,6 +7,7 @@ A wrapper for the "rm" command with soft-deletes, config-based deletion, debug i
 ## "GNU Like" command line arguments
 
 - `-i` Interactivly prompt before each deletion request
+- `-I` Prompt if deleting more three files
 - `--help` Display help information (without deletion)
 - `--version` Display version information (without deletion)
 
@@ -28,10 +29,9 @@ A wrapper for the "rm" command with soft-deletes, config-based deletion, debug i
 - `-v`, `--verbose` Emit additional verbose information
 - `--version` Show version information
 - `--help` Show help information
-- `-I` Prompt if deleting more than three files
 - `--interactive[=WHEN]` Interactive with a custom threshold
 - `--one-file-system` Do not allow cross-file-system deletes
-- `-f`, `--force` (partially implemented)
+- `-f`, `--force` Bypass protections
 
 ## Features
 
@@ -111,10 +111,10 @@ hard:
 soft:
     - "*.bak"
 # do not allow deleting these files/directories
-# without using the `-f` or `--force` flags
-# this does not make the file un-deletable
-# through other tools, but it does protect
-# against accidental deletion through 2rm
+# without using the `--bypass-protected` flag this
+# does not make the file protected at the system level
+# through other tools, but it does protect against
+# accidental deletion through 2rm
 protected:
     - ".ssh/"
 ```

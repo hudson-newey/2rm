@@ -15,22 +15,17 @@ import (
 )
 
 const TRASH_DIR_PERMISSIONS = 0755
+const INTERACTIVE_THRESHOLD = 3
 
 func RmPatch(arguments []string, config models.Config) {
-	forceHardDelete := util.InArray(arguments, cli.HARD_DELETE_CLA)
-	forceSoftDelete := util.InArray(arguments, cli.SOFT_DELETE_CLA)
 	silent := util.InArray(arguments, cli.SILENT_CLA)
 	dryRun := util.InArray(arguments, cli.DRY_RUN_CLA)
-	bypassProtected := util.InArray(arguments, cli.BYPASS_PROTECTED_CLA)
-	overwrite := util.InArray(arguments, cli.OVERWRITE_CLA)
 	shouldNotify := util.InArray(arguments, cli.NOTIFICATION_CLA)
 
 	requestingHelp := util.InArray(arguments, cli.HELP_CLA)
 	requestingVersion := util.InArray(arguments, cli.VERSION_CLA)
 
-	actionedArgs := removeUnNeededArguments(
-		removeDangerousArguments(arguments),
-	)
+	actionedArgs := removeDangerousArguments(arguments)
 
 	if requestingHelp {
 		cli.PrintHelp()
@@ -54,36 +49,7 @@ func RmPatch(arguments []string, config models.Config) {
 		return
 	}
 
-	for _, path := range filePaths {
-		absolutePath := relativeToAbsolute(path)
-		isTmp := isTmpPath(absolutePath)
-
-		isProtected := config.IsProtected(absolutePath)
-		if isProtected && bypassProtected {
-			fmt.Println("Cannot delete protected file:", absolutePath)
-			fmt.Println("Use the --bypass-protected flag to force deletion")
-			continue
-		}
-
-		isConfigHardDelete := config.ShouldHardDelete(absolutePath)
-		isConfigSoftDelete := config.ShouldSoftDelete(absolutePath)
-
-		// overwriting a file is not exclusive to hard/soft deletes
-		// meaning that you can overwrite the contents of a file with zeros and
-		// also soft delete it
-		// I have made this decision because I think soft-deleting an
-		// overwritten file has auditing/logging use cases
-		// e.g. Who deleted this file? When was it deleted?
-		// if we hard deleted the file, we would lose this information
-		isConfigOverwrite := config.ShouldOverwrite(absolutePath)
-		if overwrite || isConfigOverwrite {
-			overwriteFile(absolutePath)
-		}
-
-		shouldHardDelete := isTmp || forceHardDelete || isConfigHardDelete && !isConfigSoftDelete && !forceSoftDelete
-
-		deletePath(absolutePath, shouldHardDelete, config, arguments)
-	}
+	deletePaths(filePaths, config, arguments)
 
 	if shouldNotify {
 		fileNames := strings.Join(filePaths, ", ")
@@ -92,28 +58,6 @@ func RmPatch(arguments []string, config models.Config) {
 			panic(err)
 		}
 	}
-}
-
-func removeUnNeededArguments(arguments []string) []string {
-	returnedArguments := []string{}
-	unNeededArguments := []string{
-		"-r",
-		cli.HARD_DELETE_CLA,
-		cli.SOFT_DELETE_CLA,
-		cli.SILENT_CLA,
-		cli.DRY_RUN_CLA,
-		cli.BYPASS_PROTECTED_CLA,
-		cli.OVERWRITE_CLA,
-		cli.NOTIFICATION_CLA,
-	}
-
-	for _, arg := range arguments {
-		if !util.InArray(unNeededArguments, arg) {
-			returnedArguments = append(returnedArguments, arg)
-		}
-	}
-
-	return returnedArguments
 }
 
 func removeDangerousArguments(arguments []string) []string {
@@ -165,20 +109,61 @@ func backupFileName(path string) string {
 	return result + ".bak"
 }
 
-func deletePath(path string, hard bool, config models.Config, arguments []string) {
-	isInteractive := util.InArray(arguments, cli.INTERACTIVE_CLA)
+func deletePaths(paths []string, config models.Config, arguments []string) {
+	forceHardDelete := util.InArray(arguments, cli.HARD_DELETE_CLA)
+	forceSoftDelete := util.InArray(arguments, cli.SOFT_DELETE_CLA)
+	bypassProtected := util.InArray(arguments, cli.BYPASS_PROTECTED_CLA)
+	overwrite := util.InArray(arguments, cli.OVERWRITE_CLA)
 
-	if isInteractive {
-		fmt.Println("Are you sure you want to delete", path, "? (y/n)")
-		var response string
-		fmt.Scanln(&response)
+	hasInteraciveCla := util.InArray(arguments, cli.INTERACTIVE_CLA)
+	hasGroupInteractiveCla := util.InArray(arguments, cli.INTERACTIVE_GROUP_CLA)
+	isInteractiveGroup := hasGroupInteractiveCla && len(paths) >= INTERACTIVE_THRESHOLD
+	isInteractive := hasInteraciveCla || isInteractiveGroup
 
-		if response != "y" && response != "yes" {
-			fmt.Println("Exiting without removing file(s).")
-			return
+	for _, path := range paths {
+		if isInteractive {
+			fmt.Println("Are you sure you want to delete", path, "? (y/n)")
+			var response string
+			fmt.Scanln(&response)
+
+			if response != "y" && response != "yes" {
+				fmt.Println("Skipping file", path)
+				continue
+			}
 		}
-	}
 
+		absolutePath := relativeToAbsolute(path)
+		isTmp := isTmpPath(absolutePath)
+
+		isProtected := config.IsProtected(absolutePath)
+		if isProtected && bypassProtected {
+			fmt.Println("Cannot delete protected file:", absolutePath)
+			fmt.Println("Use the --bypass-protected flag to force deletion")
+			continue
+		}
+
+		isConfigHardDelete := config.ShouldHardDelete(absolutePath)
+		isConfigSoftDelete := config.ShouldSoftDelete(absolutePath)
+
+		// overwriting a file is not exclusive to hard/soft deletes
+		// meaning that you can overwrite the contents of a file with zeros and
+		// also soft delete it
+		// I have made this decision because I think soft-deleting an
+		// overwritten file has auditing/logging use cases
+		// e.g. Who deleted this file? When was it deleted?
+		// if we hard deleted the file, we would lose this information
+		isConfigOverwrite := config.ShouldOverwrite(absolutePath)
+		if overwrite || isConfigOverwrite {
+			overwriteFile(absolutePath)
+		}
+
+		shouldHardDelete := isTmp || forceHardDelete || isConfigHardDelete && !isConfigSoftDelete && !forceSoftDelete
+
+		deletePath(absolutePath, shouldHardDelete, config, arguments)
+	}
+}
+
+func deletePath(path string, hard bool, config models.Config, arguments []string) {
 	if hard {
 		hardDelete(path)
 	} else {
@@ -225,6 +210,12 @@ func softDelete(filePath string, tempDir string) {
 	}
 
 	err = os.Remove(absoluteSrcPath)
+	if err != nil {
+		fmt.Println("Error deleting file:", err)
+
+		// pause the program so the user can see the error message
+		fmt.Scanln()
+	}
 }
 
 func hardDelete(filePath string) {
