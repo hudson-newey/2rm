@@ -57,6 +57,44 @@ func TestConfig(t *testing.T) {
 			expectedResult: true,
 		},
 		{
+			name:           "HardDeleteWithPrefix",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldHardDelete,
+			testedPath:     "./node_modules/",
+			expectedResult: true,
+		},
+		{
+			name:           "HardDeleteWithLongPrefix",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldHardDelete,
+			testedPath:     "./Documents/client/node_modules/",
+			expectedResult: true,
+		},
+		{
+			// while we specified node_modules/ as a hard delete inside the
+			// config, test.txt does not match the hard delete config pattern
+			// so we expect the nested file to use the default soft-delete
+			name:           "HardDeleteWithSuffix",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldHardDelete,
+			testedPath:     "node_modules/test.txt",
+			expectedResult: false,
+		},
+		{
+			name:           "HardDeleteWithLongSuffix",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldHardDelete,
+			testedPath:     "node_modules/sub_package/dist/test.txt",
+			expectedResult: false,
+		},
+		{
+			name:           "HardDeleteWithSuffixAndPrefix",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldHardDelete,
+			testedPath:     "/home/john_doe/Documents/client/node_modules/test.txt",
+			expectedResult: false,
+		},
+		{
 			name:           "NotHardDelete",
 			configPath:     "valid.yml",
 			configFunction: models.Config.ShouldHardDelete,
@@ -84,6 +122,20 @@ func TestConfig(t *testing.T) {
 			configPath:     "valid.yml",
 			configFunction: models.Config.ShouldSoftDelete,
 			testedPath:     "file.bak",
+			expectedResult: true,
+		},
+		{
+			name:           "SoftDeleteWithPrefix",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldSoftDelete,
+			testedPath:     "./file.bak",
+			expectedResult: true,
+		},
+		{
+			name:           "SoftDeleteWithLongPrefix",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldSoftDelete,
+			testedPath:     "./.local/share/2rm/file.bak",
 			expectedResult: true,
 		},
 		{
@@ -117,6 +169,20 @@ func TestConfig(t *testing.T) {
 			expectedResult: true,
 		},
 		{
+			name:           "ProtectedWithPrefix",
+			configPath:     "valid.yml",
+			configFunction: models.Config.IsProtected,
+			testedPath:     "./.ssh/",
+			expectedResult: true,
+		},
+		{
+			name:           "ProtectedWithLongPrefix",
+			configPath:     "valid.yml",
+			configFunction: models.Config.IsProtected,
+			testedPath:     "./john-doe/crypto/.ssh/",
+			expectedResult: true,
+		},
+		{
 			name:           "NotProtected",
 			configPath:     "valid.yml",
 			configFunction: models.Config.IsProtected,
@@ -144,6 +210,20 @@ func TestConfig(t *testing.T) {
 			configPath:     "valid.yml",
 			configFunction: models.Config.ShouldOverwrite,
 			testedPath:     ".ssh/test.pem",
+			expectedResult: true,
+		},
+		{
+			name:           "OverwriteWithPrefix",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldOverwrite,
+			testedPath:     "./.ssh/test.pem",
+			expectedResult: true,
+		},
+		{
+			name:           "OverwriteWithLongPrefix",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldOverwrite,
+			testedPath:     "./john-doe/crypto/.ssh/test.pem",
 			expectedResult: true,
 		},
 		{

@@ -8,6 +8,7 @@ hard:
     - ".next/"
     - "*.partial"
 soft:
+    - "backups/"
     - "*.bak"
 protected:
     - ".ssh/"

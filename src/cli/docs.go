@@ -18,7 +18,7 @@ Mark FILE(s) for deletion.
 
 -f, --force				Bypass protections
 
--v, --verbose			Add additional information to the output
+-v, --verbose				Add additional information to the output
 
 --help					Display this help and (without deleting anything)
 

@@ -94,13 +94,16 @@ func (config Config) InteractiveThreshold() int {
 }
 
 func matchesPattern(pattern string, path string) bool {
-	// we put a wildcard at the start so that we don't have to match full
-	// paths
-	isAbsolutePath := strings.HasPrefix(path, "/")
-	if !isAbsolutePath {
-		pattern = "*" + pattern
+	// Normalize the pattern and path
+	normalizedPattern := filepath.Clean(pattern)
+	normalizedPath := filepath.Clean(path)
+
+	// Check if the pattern matches the path
+	matched, _ := filepath.Match(normalizedPattern, normalizedPath)
+	if matched {
+		return true
 	}
 
-	matched, _ := filepath.Match(pattern, path)
-	return matched
+	hasSuffix := strings.HasSuffix(normalizedPath, normalizedPattern)
+	return hasSuffix
 }

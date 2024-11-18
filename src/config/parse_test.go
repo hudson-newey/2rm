@@ -36,6 +36,7 @@ func TestParsingConfig(t *testing.T) {
 			"*.partial",
 		},
 		Soft: []string{
+			"backups/",
 			"*.bak",
 		},
 		Protected: []string{

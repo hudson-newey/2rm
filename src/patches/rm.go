@@ -52,7 +52,7 @@ func RmPatch(arguments []string, config models.Config) {
 
 	if shouldNotify {
 		fileNames := strings.Join(filePaths, ", ")
-		err := beeep.Notify("2rm", "Finished deletion request '"+fileNames+"'", "")
+		err := beeep.Notify("2rm", "Completed deletion '"+fileNames+"'", "")
 		if err != nil {
 			panic(err)
 		}
@@ -81,7 +81,11 @@ func extractFilePaths(input []string) []string {
 
 	for _, str := range input {
 		if !strings.HasPrefix(str, "-") {
-			filePaths = append(filePaths, str)
+			if util.IsDirectory(str) && !strings.HasSuffix(str, "/") {
+				filePaths = append(filePaths, str+"/")
+			} else {
+				filePaths = append(filePaths, str)
+			}
 		}
 	}
 
