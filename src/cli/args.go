@@ -15,5 +15,9 @@ const VERBOSE_SHORT_CLA = "-v"
 // gnu rm CLI arguments
 const INTERACTIVE_CLA = "-i"
 const INTERACTIVE_GROUP_CLA = "-I"
+
+const DIR_CLA = "-d"
+const DIR_CLA_LONG = "--dir"
+
 const HELP_CLA = "--help"
 const VERSION_CLA = "--version"

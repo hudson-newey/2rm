@@ -45,3 +45,12 @@ func ListFiles(directory string) []string {
 
 	return fileNames
 }
+
+func IsDirectoryEmpty(directory string) bool {
+	files, err := os.ReadDir(directory)
+	if err != nil {
+		return true
+	}
+
+	return len(files) == 0
+}

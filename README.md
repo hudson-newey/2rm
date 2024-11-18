@@ -10,6 +10,7 @@ A wrapper for the "rm" command with soft-deletes, config-based deletion, debug i
 - `-I` Prompt if deleting more than the interactive threshold of files (default 3)
 - `-r`, `-R`, `--recursive` Recursively delete a directory of files
 - `-v`, `--verbose` Emit additional verbose information
+- `-d`, `--dir` Only delete empty directories
 - `--help` Display help information (without deletion)
 - `--version` Display version information (without deletion)
 
@@ -26,7 +27,6 @@ A wrapper for the "rm" command with soft-deletes, config-based deletion, debug i
 
 ## Unsupported command line arguments
 
-- `-d`, `--dir` Only delete empty directories
 - `--interactive[=WHEN]` Interactive with a custom threshold
 - `--one-file-system` Do not allow cross-file-system deletes
 - `-f`, `--force` Bypass protections

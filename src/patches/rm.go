@@ -124,6 +124,11 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 	isInteractiveGroup := hasGroupInteractiveCla && len(paths) >= config.InteractiveThreshold()
 	isInteractive := hasInteraciveCla || isInteractiveGroup
 
+	onlyEmptyDirs := util.InArray(arguments, cli.DIR_CLA)
+	if !onlyEmptyDirs {
+		onlyEmptyDirs = util.InArray(arguments, cli.DIR_CLA_LONG)
+	}
+
 	hasVerboseCla := util.InArray(arguments, cli.VERBOSE_CLA)
 	if !hasVerboseCla {
 		hasVerboseCla = util.InArray(arguments, cli.VERBOSE_SHORT_CLA)
@@ -149,6 +154,14 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 			fmt.Println("Cannot delete protected file:", absolutePath)
 			fmt.Println("Use the --bypass-protected flag to force deletion")
 			continue
+		}
+
+		if onlyEmptyDirs {
+			isDirEmpty := util.IsDirectoryEmpty(absolutePath)
+			if !isDirEmpty {
+				fmt.Println("cannot remove '", path, "': Directory not empty")
+				continue
+			}
 		}
 
 		isConfigHardDelete := config.ShouldHardDelete(absolutePath)

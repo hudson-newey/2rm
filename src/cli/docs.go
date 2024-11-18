@@ -20,6 +20,8 @@ Mark FILE(s) for deletion.
 
 -v, --verbose				Add additional information to the output
 
+-d, --dir				Only remove empty directories
+
 --help					Display this help and (without deleting anything)
 
 --version				Output version information (without deleting anything)
