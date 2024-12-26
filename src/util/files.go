@@ -54,3 +54,8 @@ func IsDirectoryEmpty(directory string) bool {
 
 	return len(files) == 0
 }
+
+func PathExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}

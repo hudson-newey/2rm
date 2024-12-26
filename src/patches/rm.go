@@ -17,8 +17,6 @@ import (
 const TRASH_DIR_PERMISSIONS = 0755
 
 func RmPatch(arguments []string, config models.Config) {
-	silent := util.InArray(arguments, cli.SILENT_CLA)
-	dryRun := util.InArray(arguments, cli.DRY_RUN_CLA)
 	shouldNotify := util.InArray(arguments, cli.NOTIFICATION_CLA)
 
 	requestingHelp := util.InArray(arguments, cli.HELP_CLA)
@@ -35,19 +33,6 @@ func RmPatch(arguments []string, config models.Config) {
 	}
 
 	filePaths := extractFilePaths(actionedArgs)
-
-	// a debug statement is useful for scripts, it provides explicit feedback
-	// and prints exactly what files were backed up / moved to the trash can
-	// after deletion
-	debugStatement := strings.Join(filePaths, " ")
-	if !silent {
-		fmt.Println(debugStatement)
-	}
-
-	if dryRun {
-		return
-	}
-
 	deletePaths(filePaths, config, arguments)
 
 	if shouldNotify {
@@ -118,6 +103,7 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 	bypassProtected := util.InArray(arguments, cli.BYPASS_PROTECTED_CLA)
 	overwrite := util.InArray(arguments, cli.OVERWRITE_CLA)
 	silent := util.InArray(arguments, cli.SILENT_CLA)
+	dryRun := util.InArray(arguments, cli.DRY_RUN_CLA)
 
 	hasInteraciveCla := util.InArray(arguments, cli.INTERACTIVE_CLA)
 	hasGroupInteractiveCla := util.InArray(arguments, cli.INTERACTIVE_GROUP_CLA)
@@ -134,7 +120,13 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 		hasVerboseCla = util.InArray(arguments, cli.VERBOSE_SHORT_CLA)
 	}
 
+	removedFiles := []string{}
 	for _, path := range paths {
+		if !util.PathExists(path) {
+			fmt.Println("2rm: Cannot remove '" + path + "': No such file or directory")
+			continue
+		}
+
 		if isInteractive {
 			fmt.Println("Are you sure you want to delete", path, "? (y/n)")
 			var response string
@@ -175,21 +167,38 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 		// e.g. Who deleted this file? When was it deleted?
 		// if we hard deleted the file, we would lose this information
 		isConfigOverwrite := config.ShouldOverwrite(absolutePath)
-		if overwrite || isConfigOverwrite {
+		if overwrite || isConfigOverwrite && !dryRun {
 			overwriteFile(absolutePath)
 		}
 
 		shouldHardDelete := isTmp || forceHardDelete || isConfigHardDelete && !isConfigSoftDelete && !forceSoftDelete
 
-		deletePath(absolutePath, shouldHardDelete, config)
+		deletePath(absolutePath, shouldHardDelete, dryRun, config)
 
 		if hasVerboseCla && !silent {
 			fmt.Printf("removed '%s'\n", path)
 		}
+
+		removedFiles = append(removedFiles, path)
 	}
+
+	for _, path := range removedFiles {
+		fmt.Print(path)
+	}
+	// do an empty print line last so that when the shell returns to a
+	// prompt the prompt will be on its own line
+	fmt.Println()
 }
 
-func deletePath(path string, hard bool, config models.Config) {
+func deletePath(path string, hard bool, dryRun bool, config models.Config) {
+	// I break out during dry runs at the last possible point so that dry
+	// runs are as close to real runs as possible
+	// all the same debug information, deletion prompts and errors will be
+	// shown during dry runs
+	if dryRun {
+		return
+	}
+
 	if hard {
 		hardDelete(path)
 	} else {
