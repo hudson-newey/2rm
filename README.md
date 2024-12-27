@@ -6,7 +6,7 @@ A wrapper for the "rm" command with soft-deletes, config-based deletion, debug i
 
 ## "GNU Like" command line arguments
 
-- `-i` Interactivly prompt before each deletion request
+- `-i` Interactively prompt before each deletion request
 - `-I` Prompt if deleting more than the interactive threshold of files (default 3)
 - `-r`, `-R`, `--recursive` Recursively delete a directory of files
 - `-v`, `--verbose` Emit additional verbose information
@@ -35,7 +35,7 @@ A wrapper for the "rm" command with soft-deletes, config-based deletion, debug i
 
 ### Removes the ability to remove your root directory
 
-I have done this so that you can't accidently add a space and remove your root directory with a typo such as
+I have done this so that you can't accidentally add a space and remove your root directory with a typo such as
 
 ```sh
 $ rm -rf ./directory /
@@ -63,9 +63,9 @@ In this case, you can modify your `~/.local/share/2rm/config.yml` file to always
 
 ### Overwriting disk location with zeros
 
-When deleting a file with the linux inbuilt `rm` command, the file is still avaliable on disk.
+When deleting a file with the linux inbuilt `rm` command, the file is still available on disk.
 
-Meaning that the file can still be recovered by any sufficiantly technical user.
+Meaning that the file can still be recovered by any sufficiently technical user.
 
 This can be problematic when dealing with sensitive files such as private keys that if leaked could lead to catastrophic consequences.
 

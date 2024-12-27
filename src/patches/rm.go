@@ -45,7 +45,7 @@ func RmPatch(arguments []string, config models.Config) {
 }
 
 func removeDangerousArguments(arguments []string) []string {
-	// I have excluded the root slash as a forbidden argument just incase
+	// I have excluded the root slash as a forbidden argument just in case
 	// you make a typo like rm ./myDirectory /
 	// when you were just trying to delete myDirectory
 	forbiddenArguments := []string{"/", "--no-preserve-root"}
@@ -105,10 +105,10 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 	silent := util.InArray(arguments, cli.SILENT_CLA)
 	dryRun := util.InArray(arguments, cli.DRY_RUN_CLA)
 
-	hasInteraciveCla := util.InArray(arguments, cli.INTERACTIVE_CLA)
+	hasInteractiveCla := util.InArray(arguments, cli.INTERACTIVE_CLA)
 	hasGroupInteractiveCla := util.InArray(arguments, cli.INTERACTIVE_GROUP_CLA)
 	isInteractiveGroup := hasGroupInteractiveCla && len(paths) >= config.InteractiveThreshold()
-	isInteractive := hasInteraciveCla || isInteractiveGroup
+	isInteractive := hasInteractiveCla || isInteractiveGroup
 
 	onlyEmptyDirs := util.InArray(arguments, cli.DIR_CLA)
 	if !onlyEmptyDirs {
