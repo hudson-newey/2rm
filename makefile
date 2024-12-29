@@ -1,6 +1,6 @@
 OUT_DIR=build
 
-.PHONY: clean build test install docs
+.PHONY: build build-program test install docs clean 
 
 build:
 	mkdir -p $(OUT_DIR)
@@ -14,13 +14,12 @@ build-program:
 test:
 	go test ./src/...
 
-clean:
-	rm -rf $(OUT_DIR)
-
 install:
-	cp ./$(OUT_DIR)/2rm ~/.local/bin/2rm
-	sudo cp ./$(OUT_DIR)/2rm.1 /usr/share/man/man1/2rm.1
+	scripts/install_artifacts.sh $(OUT_DIR)
 
 docs:
 	mkdir -p $(OUT_DIR)
 	pandoc -s --to man ./README.md -o ./$(OUT_DIR)/2rm.1
+
+clean:
+	rm -rf $(OUT_DIR)
