@@ -6,7 +6,7 @@ import (
 
 	"hudson-newey/2rm/src/config"
 	"hudson-newey/2rm/src/models"
-	"hudson-newey/2rm/src/patches"
+	"hudson-newey/2rm/src/rm"
 )
 
 func main() {
@@ -26,5 +26,5 @@ func main() {
 		parsedConfig = config.ParseConfig(defaultConfigDirectory)
 	}
 
-	patches.RmPatch(originalArguments, parsedConfig)
+	rm.Execute(originalArguments, parsedConfig)
 }

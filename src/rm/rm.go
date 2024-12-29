@@ -1,4 +1,4 @@
-package patches
+package rm
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ import (
 
 const TRASH_DIR_PERMISSIONS = 0755
 
-func RmPatch(arguments []string, config models.Config) {
+func Execute(arguments []string, config models.Config) {
 	shouldNotify := util.InArray(arguments, cli.NOTIFICATION_CLA)
 
 	requestingHelp := util.InArray(arguments, cli.HELP_CLA)
