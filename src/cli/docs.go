@@ -51,6 +51,11 @@ You can create a 2rm config file under ~/.local/share/2rm/config.yml that will
 allow you to protect files/directories, set a custom backup location, and
 configure directories that should always be hard-deleted.
 
+Exit codes:
+
+1: GNU compatible error
+2: An error occured during a 2rm function
+
 Use "man 2rm" for more information.
 `
 

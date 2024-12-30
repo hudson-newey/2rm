@@ -84,8 +84,8 @@ func isTmpPath(absolutePath string) bool {
 func relativeToAbsolute(path string) string {
 	absolutePath, err := filepath.Abs(path)
 	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(3)
+		cli.PrintErrorValue(err)
+		os.Exit(2)
 	}
 
 	return absolutePath
@@ -123,7 +123,7 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 	removedFiles := []string{}
 	for _, path := range paths {
 		if !util.PathExists(path) {
-			fmt.Println("2rm: Cannot remove '" + path + "': No such file or directory")
+			cli.PrintError("Cannot remove '" + path + "': No such file or directory")
 			continue
 		}
 
@@ -143,15 +143,16 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 
 		isProtected := config.IsProtected(absolutePath)
 		if isProtected && bypassProtected {
-			fmt.Println("Cannot delete protected file:", absolutePath)
-			fmt.Println("Use the --bypass-protected flag to force deletion")
+			// TODO: maybe these two print lines should be combined
+			cli.PrintError("Cannot delete protected file:" + absolutePath)
+			cli.PrintError("Use the --bypass-protected flag to force deletion")
 			continue
 		}
 
 		if onlyEmptyDirs {
 			isDirEmpty := util.IsDirectoryEmpty(absolutePath)
 			if !isDirEmpty {
-				fmt.Println("cannot remove '", path, "': Directory not empty")
+				cli.PrintError("cannot remove '" + path + "': Directory not empty")
 				continue
 			}
 		}
@@ -191,9 +192,12 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 			fmt.Print(" ")
 		}
 	}
+
 	// do an empty print line last so that when the shell returns to a
 	// prompt the prompt will be on its own line
-	fmt.Println()
+	if removedFilesLen > 0 {
+		fmt.Println()
+	}
 }
 
 func deletePath(path string, hard bool, dryRun bool, config models.Config) {
@@ -240,7 +244,7 @@ func softDelete(filePath string, tempDir string, backupDirectory string) {
 		// without a backup, we want to exit
 		// everything other than a "y"/"yes" response will not delete the file
 		if response != "y" && response != "yes" {
-			fmt.Println("Exiting without removing file(s).")
+			cli.PrintError("Exiting without removing file(s).")
 			return
 		}
 	}
@@ -272,37 +276,35 @@ func softDelete(filePath string, tempDir string, backupDirectory string) {
 
 	err = util.CopyFile(absoluteSrcPath, backupLocation)
 	if err != nil {
-		fmt.Println("Error moving file to trash:", err)
+		cli.PrintError("Error moving file to trash:" + err.Error())
 		return
 	}
 
 	err = os.Remove(absoluteSrcPath)
 	if err != nil {
-		fmt.Println("Error deleting file:", err)
-
-		// pause the program so the user can see the error message
-		fmt.Scanln()
+		cli.PrintError("Error deleting file:" + err.Error())
+		cli.Pause()
 	}
 }
 
 func hardDelete(filePath string) {
 	err := os.RemoveAll(filePath)
 	if err != nil {
-		fmt.Println("Error deleting file:", err)
+		cli.PrintError("Error deleting file:" + err.Error())
 	}
 }
 
 func overwriteFile(filePath string) {
 	file, err := os.OpenFile(filePath, os.O_RDWR, 0644)
 	if err != nil {
-		fmt.Println("Error opening file:", err)
+		cli.PrintError("Error opening file:" + err.Error())
 		os.Exit(2)
 	}
 	defer file.Close()
 
 	fileInfo, err := file.Stat()
 	if err != nil {
-		fmt.Println("Error getting file info:", err)
+		cli.PrintError("Error reading file info:" + err.Error())
 		os.Exit(2)
 	}
 
@@ -311,7 +313,7 @@ func overwriteFile(filePath string) {
 
 	_, err = file.WriteAt(zeroBytes, 0)
 	if err != nil {
-		fmt.Println("Error writing to file:", err)
+		cli.PrintError("Error writing to file:" + err.Error())
 		os.Exit(2)
 	}
 }
