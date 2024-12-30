@@ -182,8 +182,14 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 		removedFiles = append(removedFiles, path)
 	}
 
-	for _, path := range removedFiles {
+	removedFilesLen := len(removedFiles)
+	for i, path := range removedFiles {
 		fmt.Print(path)
+
+		// TODO: we might want to make this the shells IFS value
+		if i != removedFilesLen {
+			fmt.Print(" ")
+		}
 	}
 	// do an empty print line last so that when the shell returns to a
 	// prompt the prompt will be on its own line
