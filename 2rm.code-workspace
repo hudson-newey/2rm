@@ -28,7 +28,6 @@
         "yzhang.markdown-all-in-one",
         "davidanson.vscode-markdownlint",
         "golang.go",
-        "premparihar.gotestexplorer",
         "redhat.vscode-yaml",
       ],
     },

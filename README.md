@@ -83,7 +83,8 @@ If you want to fully delete a file from disk and the file system use both the `-
 You can specify what directories are soft-deleted anb hard-deleted by using the `~/.local/share/2rm/config.yml` file.
 
 ```yml
-# ~/.local/share/2rm/config.yml
+# user specific: ~/.local/share/2rm/config.yml
+# system wide: /etc/2rm/config.yml
 
 # defaults to /tmp/2rm/ if not specified
 # in the config file

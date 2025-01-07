@@ -47,9 +47,18 @@ Mark FILE(s) for deletion.
 
 By default, 2rm will soft-delete a file and store a backup (default /tmp/2rm)
 
-You can create a 2rm config file under ~/.local/share/2rm/config.yml that will
-allow you to protect files/directories, set a custom backup location, and
-configure directories that should always be hard-deleted.
+Config-based deletion:
+
+You can create a system wide 2rm config file under /etc/2rm/config.yml that will
+apply to all users on the system.
+
+Alternatively you can create a config bound to the local user at
+~/.local/share/2rm/config.yml.
+
+User config files will always take precedence over system wide configurations.
+
+Using a config will allow you to protect files/directories, set a custom backup
+location, and configure directories that should always be hard-deleted.
 
 Exit codes:
 
