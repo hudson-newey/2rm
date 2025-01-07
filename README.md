@@ -124,11 +124,11 @@ interactive: 10
 
 ### Error codes
 
-#### Error code _1_:
+#### Error code _1_
 
 An error that would have been thrown by a traditional "rm" command such as
 the GNU "rm" implementation.
 
-#### Error code _2_:
+#### Error code _2_
 
 An error was thrown during 2rm functionality (e.g. deleting a protected file)
