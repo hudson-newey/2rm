@@ -54,4 +54,4 @@ jobs:
       - name: Publish Assets to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ steps.date.outputs.date }} ./build/2rm ./build/2rm.1
+        run: gh release upload ${{ steps.date.outputs.date }} ./build/2rm ./build/2rm.exe ./build/2rm.1
