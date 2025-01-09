@@ -1,34 +1,46 @@
 {
-    "folders": [
-      {
-        "path": ".",
-      },
+  "folders": [
+    {
+      "path": ".",
+    },
+  ],
+  "settings": {
+    "files.insertFinalNewline": true,
+    "workbench.iconTheme": "material-icon-theme",
+    "editor.inlineSuggest.enabled": true,
+    "editor.renderWhitespace": "trailing",
+    "eslint.lintTask.enable": true,
+    "editor.formatOnSave": true,
+    "editor.rulers": [
+      80,
+      120
     ],
-    "settings": {
-      "files.insertFinalNewline": true,
-      "workbench.iconTheme": "material-icon-theme",
-      "editor.inlineSuggest.enabled": true,
-      "editor.renderWhitespace": "trailing",
-      "eslint.lintTask.enable": true,
-      "editor.formatOnSave": true,
-      "editor.rulers": [80, 120],
-      "editor.tabSize": 2,
-      "editor.insertSpaces": true,
-      "explorer.compactFolders": false,
-      "cSpell.caseSensitive": false,
-      "cSpell.words": ["2rm"],
-      "cSpell.flagWords": ["yuo"],
-      "cSpell.ignorePaths": ["**/node_modules/**", "**/dist/**", "2rm.code-workspace"],
-    },
-    "extensions": {
-      "recommendations": [
-        "streetsidesoftware.code-spell-checker",
-        "pkief.material-icon-theme",
-        "aaron-bond.better-comments",
-        "yzhang.markdown-all-in-one",
-        "davidanson.vscode-markdownlint",
-        "golang.go",
-        "redhat.vscode-yaml",
-      ],
-    },
-  }
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "explorer.compactFolders": false,
+    "cSpell.caseSensitive": false,
+    "cSpell.words": [
+      "2rm",
+      "actioned"
+    ],
+    "cSpell.flagWords": [
+      "yuo"
+    ],
+    "cSpell.ignorePaths": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "2rm.code-workspace"
+    ],
+  },
+  "extensions": {
+    "recommendations": [
+      "streetsidesoftware.code-spell-checker",
+      "pkief.material-icon-theme",
+      "aaron-bond.better-comments",
+      "yzhang.markdown-all-in-one",
+      "davidanson.vscode-markdownlint",
+      "golang.go",
+      "redhat.vscode-yaml",
+    ],
+  },
+}

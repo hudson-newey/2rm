@@ -12,7 +12,7 @@ build:
 
 build-program:
 	mkdir -p $(OUT_DIR)
-	go build -o $(OUT_DIR)/$(BRAND_NAME) ./src/main.go
+	go build -o $(OUT_DIR)/$(BRAND_NAME) $(ENTRY_POINT)
 
 test:
 	go test ./src/...
