@@ -72,6 +72,35 @@ func extractFilePaths(input []string) []string {
 				filePaths = append(filePaths, path)
 			}
 		} else {
+			supportedCliArguments := []string{
+				cli.HARD_DELETE_CLA,
+				cli.SOFT_DELETE_CLA,
+				cli.SILENT_CLA,
+				cli.DRY_RUN_CLA,
+				cli.BYPASS_PROTECTED_CLA,
+				cli.OVERWRITE_CLA,
+				cli.NOTIFICATION_CLA,
+				cli.VERBOSE_CLA,
+				cli.VERBOSE_SHORT_CLA,
+				cli.INTERACTIVE_CLA,
+				cli.INTERACTIVE_GROUP_CLA,
+				cli.DIR_CLA,
+				cli.DIR_CLA_LONG,
+				cli.HELP_CLA,
+				cli.VERBOSE_CLA,
+			}
+
+			isSupportedCla := false
+			for _, argument := range supportedCliArguments {
+				if argument == path {
+					isSupportedCla = true
+				}
+			}
+
+			if isSupportedCla {
+				continue
+			}
+
 			errorMessage := "unrecognized option '" + path + "'\nTry '2rm --help' for more information."
 			if util.PathExists(path) {
 				errorMessage = "unrecognized option '" + path + "'\n" +
