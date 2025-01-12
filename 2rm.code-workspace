@@ -21,7 +21,10 @@
     "cSpell.caseSensitive": false,
     "cSpell.words": [
       "2rm",
-      "actioned"
+      "actioned",
+      "newey",
+      // A third party package that I am using for notifications
+      "beeep"
     ],
     "cSpell.flagWords": [
       "yuo"

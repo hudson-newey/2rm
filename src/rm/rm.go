@@ -16,26 +16,21 @@ import (
 
 const TRASH_DIR_PERMISSIONS = 0755
 
-func Execute(arguments []string, config models.Config) {
-	shouldNotify := util.InArray(arguments, cli.NOTIFICATION_CLA)
+func Execute(args models.CliOptions, config models.Config) {
+	sanitizedArgs := removeDangerousArguments(args.RawArguments)
 
-	requestingHelp := util.InArray(arguments, cli.HELP_CLA)
-	requestingVersion := util.InArray(arguments, cli.VERSION_CLA)
-
-	actionedArgs := removeDangerousArguments(arguments)
-
-	if requestingHelp {
+	if args.RequestingHelp {
 		cli.PrintHelp()
 		return
-	} else if requestingVersion {
+	} else if args.RequestingVersion {
 		cli.PrintVersion()
 		return
 	}
 
-	filePaths := extractFilePaths(actionedArgs)
-	deletePaths(filePaths, config, arguments)
+	filePaths := extractFilePaths(sanitizedArgs)
+	deletePaths(filePaths, config, args)
 
-	if shouldNotify {
+	if args.ShouldNotify {
 		fileNames := strings.Join(filePaths, ", ")
 		err := beeep.Notify("2rm", "Completed deletion '"+fileNames+"'", "")
 		if err != nil {
@@ -48,7 +43,9 @@ func removeDangerousArguments(arguments []string) []string {
 	// I have excluded the root slash as a forbidden argument just in case
 	// you make a typo like rm ./myDirectory /
 	// when you were just trying to delete myDirectory
-	forbiddenArguments := []string{"/", "--no-preserve-root"}
+	// If you really have to delete your root directory consider using the GNU
+	// rm command
+	forbiddenArguments := []string{"/"}
 	returnedArguments := []string{}
 
 	for _, arg := range arguments {
@@ -72,27 +69,11 @@ func extractFilePaths(input []string) []string {
 				filePaths = append(filePaths, path)
 			}
 		} else {
-			supportedCliArguments := []string{
-				cli.HARD_DELETE_CLA,
-				cli.SOFT_DELETE_CLA,
-				cli.SILENT_CLA,
-				cli.DRY_RUN_CLA,
-				cli.BYPASS_PROTECTED_CLA,
-				cli.OVERWRITE_CLA,
-				cli.NOTIFICATION_CLA,
-				cli.VERBOSE_CLA,
-				cli.VERBOSE_SHORT_CLA,
-				cli.INTERACTIVE_CLA,
-				cli.INTERACTIVE_GROUP_CLA,
-				cli.DIR_CLA,
-				cli.DIR_CLA_LONG,
-				cli.HELP_CLA,
-				cli.VERBOSE_CLA,
-			}
-
 			isSupportedCla := false
-			for _, argument := range supportedCliArguments {
-				if argument == path {
+			for _, argument := range cli.SupportedCliArguments {
+				cliFormat := "--" + argument
+				shortCliFormat := "-" + argument
+				if cliFormat == path || shortCliFormat == path {
 					isSupportedCla = true
 				}
 			}
@@ -139,28 +120,9 @@ func backupFileName(path string) string {
 	return result + ".bak"
 }
 
-func deletePaths(paths []string, config models.Config, arguments []string) {
-	forceHardDelete := util.InArray(arguments, cli.HARD_DELETE_CLA)
-	forceSoftDelete := util.InArray(arguments, cli.SOFT_DELETE_CLA)
-	bypassProtected := util.InArray(arguments, cli.BYPASS_PROTECTED_CLA)
-	overwrite := util.InArray(arguments, cli.OVERWRITE_CLA)
-	silent := util.InArray(arguments, cli.SILENT_CLA)
-	dryRun := util.InArray(arguments, cli.DRY_RUN_CLA)
-
-	hasInteractiveCla := util.InArray(arguments, cli.INTERACTIVE_CLA)
-	hasGroupInteractiveCla := util.InArray(arguments, cli.INTERACTIVE_GROUP_CLA)
-	isInteractiveGroup := hasGroupInteractiveCla && len(paths) >= config.InteractiveThreshold()
-	isInteractive := hasInteractiveCla || isInteractiveGroup
-
-	onlyEmptyDirs := util.InArray(arguments, cli.DIR_CLA)
-	if !onlyEmptyDirs {
-		onlyEmptyDirs = util.InArray(arguments, cli.DIR_CLA_LONG)
-	}
-
-	hasVerboseCla := util.InArray(arguments, cli.VERBOSE_CLA)
-	if !hasVerboseCla {
-		hasVerboseCla = util.InArray(arguments, cli.VERBOSE_SHORT_CLA)
-	}
+func deletePaths(paths []string, config models.Config, args models.CliOptions) {
+	isInteractiveGroup := args.IsGroupInteractive && len(paths) >= config.InteractiveThreshold()
+	isInteractive := args.IsInteractive || isInteractiveGroup
 
 	removedFiles := []string{}
 	for _, path := range paths {
@@ -184,14 +146,14 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 		isTmp := isTmpPath(absolutePath)
 
 		isProtected := config.IsProtected(absolutePath)
-		if isProtected && bypassProtected {
+		if isProtected && args.BypassProtected {
 			// TODO: maybe these two print lines should be combined
 			cli.PrintError("Cannot delete protected file:" + absolutePath)
 			cli.PrintError("Use the --bypass-protected flag to force deletion")
 			continue
 		}
 
-		if onlyEmptyDirs {
+		if args.OnlyEmptyDirs {
 			isDirEmpty := util.IsDirectoryEmpty(absolutePath)
 			if !isDirEmpty {
 				cli.PrintError("cannot remove '" + path + "': Directory not empty")
@@ -210,15 +172,15 @@ func deletePaths(paths []string, config models.Config, arguments []string) {
 		// e.g. Who deleted this file? When was it deleted?
 		// if we hard deleted the file, we would lose this information
 		isConfigOverwrite := config.ShouldOverwrite(absolutePath)
-		if overwrite || isConfigOverwrite && !dryRun {
+		if args.Overwrite || isConfigOverwrite && !args.DryRun {
 			overwriteFile(absolutePath)
 		}
 
-		shouldHardDelete := isTmp || forceHardDelete || isConfigHardDelete && !isConfigSoftDelete && !forceSoftDelete
+		shouldHardDelete := isTmp || args.HardDelete || isConfigHardDelete && !isConfigSoftDelete && !args.SoftDelete
 
-		deletePath(absolutePath, shouldHardDelete, dryRun, config)
+		deletePath(absolutePath, shouldHardDelete, args.DryRun, config)
 
-		if hasVerboseCla && !silent {
+		if args.Verbose && !args.Silent {
 			fmt.Printf("removed '%s'\n", path)
 		}
 

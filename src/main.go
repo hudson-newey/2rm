@@ -37,5 +37,7 @@ func main() {
 		}
 	}
 
-	rm.Execute(originalArguments, parsedConfig)
+	argumentModel := cli.ParseCliFlags(originalArguments)
+
+	rm.Execute(argumentModel, parsedConfig)
 }

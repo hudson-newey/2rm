@@ -2,7 +2,7 @@ package cli
 
 import "fmt"
 
-const VERSION = "2rm 0.1.0"
+const VERSION = "2rm 0.1.1"
 
 const HELP_DOCS = `
 Usage: rm [OPTION]... [FILE]...
@@ -34,7 +34,7 @@ Mark FILE(s) for deletion.
 
 --soft 					Soft delete a file and a store backup (default /tmp/2rm)
 
---silent				Do not print out additional information priduced by 2rm.
+--silent				Do not print out additional information produced by 2rm.
 					This is useful for scripting situations
 
 --dry-run				Perform a dry run and show all the files that would be
