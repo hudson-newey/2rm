@@ -238,7 +238,7 @@ func softDelete(filePath string, tempDir string, backupDirectory string) {
 
 	err := os.MkdirAll(backupDirectory, TRASH_DIR_PERMISSIONS)
 	if err != nil {
-		fmt.Println("Failed to create trash can entry in", backupDirectory)
+		fmt.Println("Failed to create soft delete can entry in", backupDirectory)
 		fmt.Println("Continue? (y/n)")
 
 		var response string
@@ -264,8 +264,8 @@ func softDelete(filePath string, tempDir string, backupDirectory string) {
 		}
 
 		// hard delete the directory itself
-		// because we have replicated the directory structure in the trash can
-		// we don't need to keep the original directory
+		// because we have replicated the directory structure in the soft delete
+		// directory we don't need to keep the original directory
 		//
 		// TODO: we should probably keep the original directory so that the
 		// same file permissions and other edge cases are carried across
@@ -278,17 +278,13 @@ func softDelete(filePath string, tempDir string, backupDirectory string) {
 	backupFileName := backupFileName(filePath)
 	backupLocation := backupDirectory + "/" + backupFileName
 
-	err = util.CopyFile(absoluteSrcPath, backupLocation)
+	err = util.MovePath(absoluteSrcPath, backupLocation)
 	if err != nil {
-		cli.PrintError("Error moving file to trash:" + err.Error())
+		cli.PrintError("Error soft deleting file:" + err.Error())
 		return
 	}
 
-	err = os.Remove(absoluteSrcPath)
-	if err != nil {
-		cli.PrintError("Error deleting file:" + err.Error())
-		cli.Pause()
-	}
+	hardDelete(absoluteSrcPath)
 }
 
 func hardDelete(filePath string) {
