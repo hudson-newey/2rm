@@ -30,6 +30,11 @@ func ParseCliFlags(args []string) models.CliOptions {
 	verboseLong := flag.Bool(VERBOSE_CLA, false, "")
 	hasVerboseCla := *verboseShort || *verboseLong
 
+	// even though the recursive flag has no effect in 2rm, I add it to the
+	// programs list of flags so that 2rm can correctly parse it
+	// see: https://github.com/hudson-newey/2rm/issues/27
+	flag.Bool(RECURSIVE_CLA, false, "No action")
+
 	flag.Parse()
 
 	return models.CliOptions{

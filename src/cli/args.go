@@ -22,6 +22,11 @@ const DIR_CLA_LONG = "dir"
 const HELP_CLA = "help"
 const VERSION_CLA = "version"
 
+// while this flag has no effect, I have added it as a supported cli argument
+// to maintain full backwards compatibility with the GNU rm command
+// see: https://github.com/hudson-newey/2rm/issues/27
+const RECURSIVE_CLA = "r"
+
 // TODO: Remove this
 var SupportedCliArguments = []string{
 	HARD_DELETE_CLA,
@@ -39,4 +44,5 @@ var SupportedCliArguments = []string{
 	DIR_CLA_LONG,
 	HELP_CLA,
 	VERBOSE_CLA,
+	RECURSIVE_CLA,
 }

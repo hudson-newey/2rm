@@ -22,7 +22,7 @@
       "2rm",
       "actioned",
       "newey",
-      "gomi"
+      "gomi",
       // A third party package that I am using for notifications
       "beeep"
     ],
