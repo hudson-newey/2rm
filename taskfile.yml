@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  OUT_DIR: "build"
+  ENTRY_POINT: "./src/main.go"
+  BRAND_NAME: "2rm"
+
+tasks:
+  build:
+    desc: Builds the program multiple times for every supported system
+    cmds:
+      - mkdir -p {{.OUT_DIR}}
+      - go build -o {{.OUT_DIR}}/{{.BRAND_NAME}} {{.ENTRY_POINT}}
+      - GOOS=windows GOARCH=386 go build -o {{.OUT_DIR}}/{{.BRAND_NAME}}.exe {{.ENTRY_POINT}}
+      - pandoc -s --to man ./README.md -o ./{{.OUT_DIR}}/{{.BRAND_NAME}}.1
+
+  build-program:
+    desc: Builds the program targeting the current system
+    cmds:
+      - mkdir -p {{.OUT_DIR}}
+      - go build -o {{.OUT_DIR}}/{{.BRAND_NAME}} {{.ENTRY_POINT}}
+
+  test:
+    desc: Runs the test suite
+    cmds:
+      - go test ./src/...
+
+  install:
+    desc: Installs artifacts to the system (must be run as root)
+    cmds:
+      - scripts/install_artifacts.sh {{.OUT_DIR}}
+
+  docs:
+    desc: Builds documentation
+    cmds:
+      - mkdir -p {{.OUT_DIR}}
+      - pandoc -s --to man ./README.md -o ./{{.OUT_DIR}}/{{.BRAND_NAME}}.1
+
+  clean:
+    desc: Cleans up artifacts
+    cmds:
+      - rm -rf {{.OUT_DIR}}

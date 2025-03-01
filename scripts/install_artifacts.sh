@@ -5,7 +5,7 @@ set -euo pipefail
 # you will have to build 2rm before running this script
 #
 # you should be running this script through
-# $ make && sudo make install
+# $ task build && sudo task install
 
 if [ "$EUID" -ne 0 ]; then
     echo "Installer requires root privileges."
@@ -22,7 +22,7 @@ build_output=$1
 
 if [ ! -d $build_output ]; then
     echo "could not find build output in $build_output"
-    echo "try building with the 'make' command"
+    echo "try building with the 'task build' command"
     exit 3
 fi
 
