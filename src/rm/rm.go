@@ -278,13 +278,64 @@ func softDelete(filePath string, tempDir string, backupDirectory string) {
 	backupFileName := backupFileName(filePath)
 	backupLocation := backupDirectory + "/" + backupFileName
 
-	err = util.MovePath(absoluteSrcPath, backupLocation)
-	if err != nil {
-		cli.PrintError("Error soft deleting file:" + err.Error())
+	// Soft deleting a path is semi-difficult because we want the most
+	// efficiant deletion method. However, the most efficiant methods
+	// typically have the most error cases.
+	//
+	// When soft deleting a file, we take the following steps
+	//
+	// 1.	Attempt to hard link the old file to the backup location.
+	//	This typically fails if the backup destination is on a seperate
+	//	partition or the backup location is a non-physical location.
+	//	Hard link soft deletion is prefered because it does not invole
+	//	copying data and is therefore an O(1) operation (where n is the
+	//	size of the file).
+	//
+	// 2. 	(unsafe) TODO: Move the file to the backup location. This is
+	//	only avaliable when running with the --unsafe flag.
+	//	This operation is considered unsafe because if the system
+	//	crashes half way through the move operation, neither the
+	//	original or backup location will have the full picture.
+	//	TODO Note: This being an unsafe operation depends upon only
+	//	deleting the original files after backups have been made.
+	//
+	// 3.	If hard link soft deletion does not work, we just copy the data
+	//	to the backup location.
+	//	This is what most "soft deletion" programs do but is an O(n)
+	//	operation, meaning that bigger files take longer to delete.
+	//	Copying data can fail if the user does not have read access to
+	//	the file.
+	//
+	// 4.	If none of the above operations work, we give up and do not
+	//	delete the file at all.
+	//	I have chosen to have a no-operation if soft deletes fail to
+	//	prevent accidental data loss.
+	//
+	// TODO: We should cache what soft deletion operations do not throw an
+	// error for each backup location so that we don't have to re-compute
+	// what operations the backup location supports.
+	// This could possibly be done with a /tmp/ file so that the cache
+	// resets after each reboot (to prevent stale cache bugs and so that
+	// 2rm can fetch system partition changes, physical disk changes, etc.
+
+	// 1. attempt to hard link the original file to the backup location
+	linkErr := os.Link(absoluteSrcPath, backupLocation);
+	if linkErr == nil {
+		hardDelete(absoluteSrcPath)
 		return
 	}
 
-	hardDelete(absoluteSrcPath)
+	// 2. TODO
+
+	// 3. attempt to move the file
+	moveErr := util.MovePath(absoluteSrcPath, backupLocation)
+	if moveErr == nil {
+		hardDelete(absoluteSrcPath)
+		return
+	}
+
+	// 4. Give up. Do not delete the original file.
+	cli.PrintError("Error soft deleting file:" + err.Error())
 }
 
 func hardDelete(filePath string) {
