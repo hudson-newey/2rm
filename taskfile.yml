@@ -26,6 +26,11 @@ tasks:
     cmds:
       - go test ./src/...
 
+  lint:
+    desc: Run the GoLang staticcheck linter
+    cmds:
+      - staticcheck ./src/
+
   install:
     desc: Installs artifacts to the system (must be run as root)
     cmds:

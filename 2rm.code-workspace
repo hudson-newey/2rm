@@ -23,6 +23,7 @@
       "actioned",
       "newey",
       "gomi",
+      "staticcheck",
       // A third party package that I am using for notifications
       "beeep"
     ],
