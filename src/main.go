@@ -39,5 +39,5 @@ func main() {
 
 	argumentModel := cli.ParseCliFlags(originalArguments)
 
-	rm.Execute(argumentModel, parsedConfig)
+	rm.ProcessDeletion(argumentModel, parsedConfig)
 }

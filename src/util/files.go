@@ -3,6 +3,7 @@ package util
 import (
 	"io"
 	"os"
+	"path/filepath"
 )
 
 func IsDirectory(path string) bool {
@@ -52,6 +53,15 @@ func MovePath(src string, dst string) error {
 	}
 
 	return moveFile(src, dst)
+}
+
+func RelativeToAbsolute(path string) string {
+	absolutePath, err := filepath.Abs(path)
+	if err != nil {
+		os.Exit(2)
+	}
+
+	return absolutePath
 }
 
 // returns a boolean representing if the path is a symbolic or hard link
