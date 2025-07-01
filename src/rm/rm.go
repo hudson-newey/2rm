@@ -14,6 +14,13 @@ import (
 	"github.com/gen2brain/beeep"
 )
 
+// When using the --interactive=once command line flag, we prompt the user on
+// the first file that they delete, but do not prompt them on any further
+// deletions.
+// This variable exists to keep track of if we have sent that initial prompt.
+// TODO: Module level state is gross. I should refactor this out.
+var doneInitialInteractive bool = false
+
 func ProcessDeletion(args models.CliOptions, config models.Config) {
 	sanitizedArgs := removeDangerousArguments(args.RawArguments)
 
@@ -48,10 +55,14 @@ func deletePaths(paths []string, config models.Config, args models.CliOptions) {
 			continue
 		}
 
-		if isInteractive {
+		if isInteractive || (args.IsOnceInteractive && !doneInitialInteractive) {
 			fmt.Println("Are you sure you want to delete", path, "? (y/n)")
 			var response string
 			fmt.Scanln(&response)
+
+			// TODO: why is this being set even when the -I and -i flags are used?
+			// this is smell that it should be somewhere else
+			doneInitialInteractive = true
 
 			if response != "y" && response != "yes" {
 				fmt.Println("Skipping file", path)

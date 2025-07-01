@@ -16,6 +16,11 @@ Mark FILE(s) for deletion.
 -I 					Prompt once before deleting more than the interactive
 					threshold (default 3)
 
+--interactive[=WHEN]
+								never false: never, no, none
+								prompt once: once
+								always prompt: always, yes
+
 -f, --force				Bypass protections
 
 -v, --verbose				Add additional information to the output
@@ -26,7 +31,7 @@ Mark FILE(s) for deletion.
 
 --version				Output version information (without deleting anything)
 
-2rm OPTION(s) Flags:
+2rm OPTION(s):
 
 --overwrite				Overwrite the disk location location with zeros
 
