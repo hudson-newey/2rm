@@ -27,6 +27,10 @@ const VERSION_CLA = "version"
 // see: https://github.com/hudson-newey/2rm/issues/27
 const RECURSIVE_CLA = "r"
 
+// This is a special command line argument because it takes a value
+// This is why this this cla has _PREFIX in the variable name
+const INTERACTIVE_WHEN_CLA_PREFIX = "interactive"
+
 // TODO: Remove this
 var SupportedCliArguments = []string{
 	HARD_DELETE_CLA,
@@ -45,4 +49,14 @@ var SupportedCliArguments = []string{
 	HELP_CLA,
 	VERBOSE_CLA,
 	RECURSIVE_CLA,
+
+	// TODO: remove this hack for --interactive accepting both boolean and an
+	// enum of possible values
+	INTERACTIVE_WHEN_CLA_PREFIX,
+	INTERACTIVE_WHEN_CLA_PREFIX + "=never",
+	INTERACTIVE_WHEN_CLA_PREFIX + "=no",
+	INTERACTIVE_WHEN_CLA_PREFIX + "=none",
+	INTERACTIVE_WHEN_CLA_PREFIX + "=once",
+	INTERACTIVE_WHEN_CLA_PREFIX + "=always",
+	INTERACTIVE_WHEN_CLA_PREFIX + "=yes",
 }

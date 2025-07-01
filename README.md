@@ -8,10 +8,10 @@ A "rm" replacement with soft-deletes, config-based deletion, debug information, 
 
 | Feature                | [2rm](https://github.com/hudson-newey/2rm) | [trash-cli](https://github.com/andreafrancia/trash-cli) | [shell-safe-rm](https://github.com/kaelzhang/shell-safe-rm) | [trashy](https://github.com/oberblastmeister/trashy) | [gomi](https://github.com/babarot/gomi) | [trash](https://github.com/sindresorhus/trash) |
 | ---------------------- | ------------------------------------------ | ------------------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------- | --------------------------------------- | ---------------------------------------------- |
-| Config-based deletion  | ✅                                          | ❌                                                       | ✅ ^1                                                        | ❌                                                    | ❌                                       | ❌                                              |
-| Supports dry runs      | ✅                                          | ❌                                                       | ❌                                                           | ❌                                                    | ❌                                       | ❌                                              |
-| GNU "rm" compatibility | ❌ ^2                                       | ❌                                                       | ❌                                                           | ❌                                                    | ❌                                       | ❌                                              |
-| Comes with "man" pages | ✅                                          | ✅                                                       | ❌                                                           | ✅                                                    | ❌                                       | ❌                                              |
+| Config-based deletion  | ✅                                         | ❌                                                      | ✅ ^1                                                       | ❌                                                   | ❌                                      | ❌                                             |
+| Supports dry runs      | ✅                                         | ❌                                                      | ❌                                                          | ❌                                                   | ❌                                      | ❌                                             |
+| GNU "rm" compatibility | ❌ ^2                                      | ❌                                                      | ❌                                                          | ❌                                                   | ❌                                      | ❌                                             |
+| Comes with "man" pages | ✅                                         | ✅                                                      | ❌                                                          | ✅                                                   | ❌                                      | ❌                                             |
 
 #### Notes
 
@@ -27,6 +27,10 @@ A "rm" replacement with soft-deletes, config-based deletion, debug information, 
 - `-d`, `--dir` Only delete empty directories
 - `--help` Display help information (without deletion)
 - `--version` Display version information (without deletion)
+- `--interactive[=WHEN]` Interactive with a custom threshold
+  - Never Prompt: `never`, `no`, `none`
+  - Prompt Once: `once`
+  - Always Prompt: `always`, `yes`
 
 ## Additional command line arguments
 
@@ -37,13 +41,12 @@ A "rm" replacement with soft-deletes, config-based deletion, debug information, 
 - `--dry-run` Perform a dry run and show all the files that would be deleted
 - `--bypass-protected` Using this flag will allow you to delete a file protected by the 2rm config
 - `--notify` Send a system notification once deletion is complete
-- `--force` Bypass protections
+- `--force` Bypass 2rm protections
 
 ## Unsupported command line arguments
 
-- `--interactive[=WHEN]` Interactive with a custom threshold
 - `--one-file-system` Do not allow cross-file-system deletes
-- `-f`, `--force` Bypass protections
+- `-f`, `--force` Bypass protections (full GNU "rm" compatibility)
 
 ## Features
 
@@ -112,29 +115,29 @@ backups: /tmp/2rm/
 # whenever files matching these paths are deleted
 # the disk location will be overwritten with zeros
 overwrite:
-    # when deleting ssh keys, we always want to 
-    # overwrite them with zeros to protect
-    # against attackers recovering the production
-    # ssh keys
-    - ".ssh/*"
+  # when deleting ssh keys, we always want to
+  # overwrite them with zeros to protect
+  # against attackers recovering the production
+  # ssh keys
+  - ".ssh/*"
 hard:
-    - "node_modules/"
-    - "target/"
-    - ".angular/"
-    - ".next/"
-    - ".cache/"
-# always soft delete backup files, 
+  - "node_modules/"
+  - "target/"
+  - ".angular/"
+  - ".next/"
+  - ".cache/"
+# always soft delete backup files,
 # regardless of it they are configured
 # for a hard delete
 soft:
-    - "*.bak"
+  - "*.bak"
 # do not allow deleting these files/directories
 # without using the `--bypass-protected` flag this
 # does not make the file protected at the system level
 # through other tools, but it does protect against
 # accidental deletion through 2rm
 protected:
-    - ".ssh/"
+  - ".ssh/"
 # when using the -I flag without any arguments, the user will be prompted
 # for confirmation before deleting each file if the number of files is
 # greater or equal to this threshold
