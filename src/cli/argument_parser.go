@@ -22,27 +22,26 @@ func ParseCliFlags(args []string) models.CliOptions {
 	dryRun := flag.Bool(DRY_RUN_CLA, false, "Perform a dry run and show all files that would be deleted without the dry-run flag")
 	shouldNotify := flag.Bool(NOTIFICATION_CLA, false, "Send a system notification once deletion is complete")
 
-	isInteractive, isGroupInteractive, isOnceInteractive := interactiveWhenParser(args)
-
 	requestingHelp := flag.Bool(HELP_CLA, false, "Display this help and (without deleting anything)")
 	requestingVersion := flag.Bool(VERSION_CLA, false, "Output version information (without deleting anything)")
 
 	onlyEmptyDirsDesc := ""
-	onlyEmptyDirsShort := flag.Bool(DIR_CLA, false, onlyEmptyDirsDesc)
+	onlyEmptyDirsShort := flag.BoolP(DIR_CLA, DIR_CLA, false, onlyEmptyDirsDesc)
 	onlyEmptyDirsLong := flag.Bool(DIR_CLA_LONG, false, "")
 	onlyEmptyDirs := *onlyEmptyDirsShort || *onlyEmptyDirsLong
 
 	verboseDesc := ""
-	verboseShort := flag.Bool(VERBOSE_SHORT_CLA, false, verboseDesc)
-	verboseLong := flag.Bool(VERBOSE_CLA, false, "")
+	verboseShort := flag.BoolP(VERBOSE_SHORT_CLA, VERBOSE_SHORT_CLA, false, verboseDesc)
+	verboseLong := flag.Bool(VERBOSE_CLA, false, verboseDesc)
 	hasVerboseCla := *verboseShort || *verboseLong
 
 	// even though the recursive flag has no effect in 2rm, I add it to the
 	// programs list of flags so that 2rm can correctly parse it
 	// see: https://github.com/hudson-newey/2rm/issues/27
-	flag.Bool(RECURSIVE_CLA, false, "No action")
+	flag.BoolP(RECURSIVE_CLA, RECURSIVE_CLA, false, "No action")
 
-	flag.Parse()
+	// Calling "interactiveWhenParser" calls the flags.Parse() function
+	isInteractive, isGroupInteractive, isOnceInteractive := interactiveWhenParser(args)
 
 	return models.CliOptions{
 		HardDelete:         *hardDelete,
@@ -100,16 +99,14 @@ func ParseCliFlags(args []string) models.CliOptions {
 //
 // Will run an interactive deletion session.
 func interactiveWhenParser(args []string) (bool, bool, bool) {
-	isInteractive := flag.Bool(INTERACTIVE_CLA, false, "")
-	isGroupInteractive := flag.Bool(INTERACTIVE_GROUP_CLA, false, "")
+	isInteractive := flag.BoolP(INTERACTIVE_CLA, INTERACTIVE_CLA, false, "")
+	isGroupInteractive := flag.BoolP(INTERACTIVE_GROUP_CLA, INTERACTIVE_GROUP_CLA, false, "")
 
-	// TODO: remove this impossible number hack to get around --interactive being
-	// both a boolean and string flag
-	impossibleValue := "874392704023847023455_IMPOSSIBLE_VALUE"
-	interactiveWhen := flag.String(INTERACTIVE_WHEN_CLA_PREFIX, impossibleValue, "")
+	interactiveWhen := flag.String(INTERACTIVE_WHEN_CLA_PREFIX, "", "")
+	flag.Lookup("interactive").NoOptDefVal = "always"
 	flag.Parse()
 
-	if *interactiveWhen == impossibleValue {
+	if *interactiveWhen == "" {
 		// if the --interactive flag is used, I set the "isInteractive" to true to
 		// pretend like the user has used the "-i" flag
 		return *isInteractive, *isGroupInteractive, false
