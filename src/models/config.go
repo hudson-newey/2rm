@@ -1,7 +1,7 @@
 package models
 
 import (
-	"hudson-newey/2rm/src/util"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -68,7 +68,12 @@ func (config Config) ShouldOverwrite(path string) bool {
 }
 
 func (config Config) IsProtected(path string) bool {
-	return util.InArray(config.Protected, path)
+	for _, protectedPath := range config.Protected {
+		if matchesPattern(protectedPath, path) {
+			return true
+		}
+	}
+	return false
 }
 
 // if the user has not specified a backup directory, we will use a default
@@ -94,16 +99,36 @@ func (config Config) InteractiveThreshold() int {
 }
 
 func matchesPattern(pattern string, path string) bool {
-	// Normalize the pattern and path
 	normalizedPattern := filepath.Clean(pattern)
 	normalizedPath := filepath.Clean(path)
 
-	// Check if the pattern matches the path
+	// Check for a direct match on the full path
 	matched, _ := filepath.Match(normalizedPattern, normalizedPath)
 	if matched {
 		return true
 	}
 
-	hasSuffix := strings.HasSuffix(normalizedPath, normalizedPattern)
-	return hasSuffix
+	// If pattern does not contain a separator and is not a directory pattern,
+	// try matching against the basename of the path.
+	// This is for patterns like "*.bak" to match "foo/bar.bak".
+	if !strings.ContainsRune(normalizedPattern, os.PathSeparator) && !strings.HasSuffix(pattern, "/") {
+		base := filepath.Base(normalizedPath)
+		matched, _ := filepath.Match(normalizedPattern, base)
+		if matched {
+			return true
+		}
+	}
+
+	// For path-like patterns (e.g. "node_modules/", ".ssh/*"),
+	// check against suffixes of the path components.
+	parts := strings.Split(normalizedPath, string(os.PathSeparator))
+	for i := range parts {
+		subPath := filepath.Join(parts[i:]...)
+		matched, _ := filepath.Match(normalizedPattern, subPath)
+		if matched {
+			return true
+		}
+	}
+
+	return false
 }
