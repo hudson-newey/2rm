@@ -16,6 +16,7 @@ type CliOptions struct {
 	IsGroupInteractive bool // prompt when deleting more than 3 files
 	OnlyEmptyDirs      bool
 	Verbose            bool
+	OneFileSystem      bool
 
 	RawArguments []string
 }

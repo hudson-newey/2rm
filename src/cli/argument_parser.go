@@ -40,6 +40,8 @@ func ParseCliFlags(args []string) models.CliOptions {
 	// see: https://github.com/hudson-newey/2rm/issues/27
 	flag.BoolP(RECURSIVE_CLA, RECURSIVE_CLA, false, "No action")
 
+	oneFileSystem := flag.Bool(ONE_FILE_SYSTEM_CLA, false, "When a hierarchical structure is being processed, skip any directory that is on a different file system from the one of the corresponding command line argument.")
+
 	// Calling "interactiveWhenParser" calls the flags.Parse() function
 	isInteractive, isGroupInteractive, isOnceInteractive := interactiveWhenParser(args)
 
@@ -58,6 +60,7 @@ func ParseCliFlags(args []string) models.CliOptions {
 		IsGroupInteractive: isGroupInteractive,
 		OnlyEmptyDirs:      onlyEmptyDirs,
 		Verbose:            hasVerboseCla,
+		OneFileSystem:      *oneFileSystem,
 
 		RawArguments: args,
 	}

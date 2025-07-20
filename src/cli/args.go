@@ -28,6 +28,7 @@ const VERSION_CLA = "version"
 // to maintain full backwards compatibility with the GNU rm command
 // see: https://github.com/hudson-newey/2rm/issues/27
 const RECURSIVE_CLA = "r"
+const ONE_FILE_SYSTEM_CLA = "one-file-system"
 
 // This is a special command line argument because it takes a value
 // This is why this this cla has _PREFIX in the variable name
@@ -53,6 +54,7 @@ var SupportedCliArguments = []string{
 	HELP_CLA,
 	VERBOSE_CLA,
 	RECURSIVE_CLA,
+	ONE_FILE_SYSTEM_CLA,
 
 	// TODO: remove this hack for --interactive accepting both boolean and an
 	// enum of possible values

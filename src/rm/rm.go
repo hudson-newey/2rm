@@ -49,10 +49,28 @@ func deletePaths(paths []string, config models.Config, args models.CliOptions) {
 	isInteractive := args.IsInteractive || isInteractiveGroup
 
 	removedFiles := []string{}
+	initialDevice, err := util.GetFileDevice(".")
+	if err != nil {
+		cli.PrintError(fmt.Sprintf("Error getting device for current directory: %v", err))
+		return
+	}
+
 	for _, path := range paths {
 		if !util.PathExists(path) {
 			cli.PrintError("Cannot remove '" + path + "': No such file or directory")
 			continue
+		}
+
+		if args.OneFileSystem {
+			fileDevice, err := util.GetFileDevice(path)
+			if err != nil {
+				cli.PrintError(fmt.Sprintf("Error getting device for file %s: %v", path, err))
+				continue
+			}
+			if fileDevice != initialDevice {
+				cli.PrintError(fmt.Sprintf("Cannot remove '%s': It is on a different file system.", path))
+				continue
+			}
 		}
 
 		if isInteractive || (args.IsOnceInteractive && !doneInitialInteractive) {
