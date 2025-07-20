@@ -35,8 +35,8 @@ A "rm" replacement with soft-deletes, config-based deletion, debug information, 
 ## Additional command line arguments
 
 - `--overwrite` Overwrite the disk location location with zeros
-- `--hard` Do not soft-delete file
-- `--soft` Soft delete a file and store a backup (default `/tmp/2rm`)
+- `-H`, `--hard` Do not soft-delete file
+- `-S`, `--soft` Soft delete a file and store a backup (default `/tmp/2rm`)
 - `--silent` Do not print out additional information priduced by 2rm. This is useful for scripting situations
 - `--dry-run` Perform a dry run and show all the files that would be deleted
 - `--bypass-protected` Using this flag will allow you to delete a file protected by the 2rm config

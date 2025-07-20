@@ -35,9 +35,9 @@ Mark FILE(s) for deletion.
 
 --overwrite				Overwrite the disk location location with zeros
 
---hard					Do not soft-delete FILE(s)
+-H, --hard				Do not soft-delete FILE(s)
 
---soft 					Soft delete a file and a store backup (default /tmp/2rm)
+-S, --soft 					Soft delete a file and a store backup (default /tmp/2rm)
 
 --silent				Do not print out additional information produced by 2rm.
 					This is useful for scripting situations

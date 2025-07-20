@@ -2,7 +2,9 @@ package cli
 
 // 2rm CLI arguments
 const HARD_DELETE_CLA = "hard"
+const HARD_DELETE_SHORT_CLA = "H"
 const SOFT_DELETE_CLA = "soft"
+const SOFT_DELETE_SHORT_CLA = "S"
 const SILENT_CLA = "silent"
 const DRY_RUN_CLA = "dry-run"
 const BYPASS_PROTECTED_CLA = "bypass-protected"
@@ -34,7 +36,9 @@ const INTERACTIVE_WHEN_CLA_PREFIX = "interactive"
 // TODO: Remove this
 var SupportedCliArguments = []string{
 	HARD_DELETE_CLA,
+	HARD_DELETE_SHORT_CLA,
 	SOFT_DELETE_CLA,
+	SOFT_DELETE_SHORT_CLA,
 	SILENT_CLA,
 	DRY_RUN_CLA,
 	BYPASS_PROTECTED_CLA,

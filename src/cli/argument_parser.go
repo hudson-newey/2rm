@@ -14,8 +14,8 @@ import (
 )
 
 func ParseCliFlags(args []string) models.CliOptions {
-	hardDelete := flag.Bool(HARD_DELETE_CLA, false, "Do not soft-delete FILE(s)")
-	softDelete := flag.Bool(SOFT_DELETE_CLA, true, "Soft delete a file and store a backup (default /tmp/2rm)")
+	hardDelete := flag.BoolP(HARD_DELETE_CLA, HARD_DELETE_SHORT_CLA, false, "Do not soft-delete FILE(s)")
+	softDelete := flag.BoolP(SOFT_DELETE_CLA, SOFT_DELETE_SHORT_CLA, true, "Soft delete a file and store a backup (default /tmp/2rm)")
 	bypassProtected := flag.Bool(BYPASS_PROTECTED_CLA, false, "Using this flag will allow you to delete a file protected by the 2rm config")
 	overwrite := flag.Bool(OVERWRITE_CLA, false, "Overwrite the disk location with zeros")
 	silent := flag.Bool(SILENT_CLA, false, "Do not print out additional information produced by 2rm")
