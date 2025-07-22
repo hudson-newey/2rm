@@ -16,7 +16,6 @@ A "rm" replacement with soft-deletes, config-based deletion, debug information, 
 #### Notes
 
 - ^1 - Shell safe rm supports configuring the soft delete backup location and protected files, but does not support any of the other config options provided by 2rm
-- ^2 - Currently a [work in progress](https://github.com/hudson-newey/2rm/issues?q=sort%3Aupdated-desc+is%3Aissue+is%3Aopen+label%3A%22GNU+compatability%22)
 
 ## "GNU Like" command line arguments
 
