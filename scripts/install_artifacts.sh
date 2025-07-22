@@ -28,4 +28,3 @@ fi
 
 cp "./$build_output/2rm" "/usr/local/bin/2rm"
 cp "./$build_output/2rm.1" "/usr/share/man/man1/2rm.1"
-
