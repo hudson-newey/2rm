@@ -125,6 +125,7 @@ hard:
   - ".angular/"
   - ".next/"
   - ".cache/"
+  - ".nx/"
 # always soft delete backup files,
 # regardless of it they are configured
 # for a hard delete
