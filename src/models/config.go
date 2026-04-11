@@ -1,9 +1,10 @@
 package models
 
 import (
-	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/bmatcuk/doublestar/v4"
 )
 
 type Config struct {
@@ -99,11 +100,11 @@ func (config Config) InteractiveThreshold() int {
 }
 
 func matchesPattern(pattern string, path string) bool {
-	normalizedPattern := filepath.Clean(pattern)
-	normalizedPath := filepath.Clean(path)
+	normalizedPattern := filepath.ToSlash(filepath.Clean(pattern))
+	normalizedPath := filepath.ToSlash(filepath.Clean(path))
 
 	// Check for a direct match on the full path
-	matched, _ := filepath.Match(normalizedPattern, normalizedPath)
+	matched, _ := doublestar.Match(normalizedPattern, normalizedPath)
 	if matched {
 		return true
 	}
@@ -111,9 +112,9 @@ func matchesPattern(pattern string, path string) bool {
 	// If pattern does not contain a separator and is not a directory pattern,
 	// try matching against the basename of the path.
 	// This is for patterns like "*.bak" to match "foo/bar.bak".
-	if !strings.ContainsRune(normalizedPattern, os.PathSeparator) && !strings.HasSuffix(pattern, "/") {
+	if !strings.ContainsRune(normalizedPattern, '/') && !strings.HasSuffix(pattern, "/") {
 		base := filepath.Base(normalizedPath)
-		matched, _ := filepath.Match(normalizedPattern, base)
+		matched, _ := doublestar.Match(normalizedPattern, base)
 		if matched {
 			return true
 		}
@@ -121,10 +122,10 @@ func matchesPattern(pattern string, path string) bool {
 
 	// For path-like patterns (e.g. "node_modules/", ".ssh/*"),
 	// check against suffixes of the path components.
-	parts := strings.Split(normalizedPath, string(os.PathSeparator))
+	parts := strings.Split(normalizedPath, "/")
 	for i := range parts {
-		subPath := filepath.Join(parts[i:]...)
-		matched, _ := filepath.Match(normalizedPattern, subPath)
+		subPath := filepath.ToSlash(filepath.Join(parts[i:]...))
+		matched, _ := doublestar.Match(normalizedPattern, subPath)
 		if matched {
 			return true
 		}

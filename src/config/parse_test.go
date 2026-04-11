@@ -34,6 +34,7 @@ func TestParsingConfig(t *testing.T) {
 			".angular/",
 			".next/",
 			"*.partial",
+			"**/*.log",
 		},
 		Soft: []string{
 			"backups/",

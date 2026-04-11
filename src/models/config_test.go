@@ -102,6 +102,34 @@ func TestConfig(t *testing.T) {
 			expectedResult: false,
 		},
 		{
+			name:           "HardDeleteGlob",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldHardDelete,
+			testedPath:     "foo.partial",
+			expectedResult: true,
+		},
+		{
+			name:           "HardDeleteGlobNested",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldHardDelete,
+			testedPath:     "dir/foo.partial",
+			expectedResult: true,
+		},
+		{
+			name:           "HardDeleteDoubleStar",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldHardDelete,
+			testedPath:     "var/log/app.log",
+			expectedResult: true,
+		},
+		{
+			name:           "HardDeleteDoubleStarRoot",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldHardDelete,
+			testedPath:     "app.log",
+			expectedResult: true,
+		},
+		{
 			name:           "HardDeleteEmpty",
 			configPath:     "only_backups.yml",
 			configFunction: models.Config.ShouldHardDelete,
@@ -144,6 +172,13 @@ func TestConfig(t *testing.T) {
 			configFunction: models.Config.ShouldSoftDelete,
 			testedPath:     "file.txt",
 			expectedResult: false,
+		},
+		{
+			name:           "SoftDeleteGlobNested",
+			configPath:     "valid.yml",
+			configFunction: models.Config.ShouldSoftDelete,
+			testedPath:     "foo/bar/baz.bak",
+			expectedResult: true,
 		},
 		{
 			name:           "SoftDeleteEmpty",
