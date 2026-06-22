@@ -1,6 +1,6 @@
 module hudson-newey/2rm
 
-go 1.23
+go 1.25
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0
